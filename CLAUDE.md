@@ -97,20 +97,28 @@ The server reads env vars only at startup — restart after changing them.
 ## Conventions
 
 - German UI/labels. Keep comments and labels German to match existing code.
-- All form fields are mandatory (except Schwerpunkt).
+- All form fields are mandatory; Inhalte needs ≥1 Thema (sub-topics optional).
 - Don't commit secrets; `.env.local` is git-ignored.
+- **Version control (local git).** After a notable iteration, commit:
+  `git -C <path>/Lernfuchs add -A && git commit -m "<what changed>"`. Git must
+  run with the sandbox off (it can't write `.git/` inside the sandbox); it's
+  local/offline — nothing is pushed.
 
 ## Open / next steps
 
-**Recommended order:** 1) git → 2) deploy to a public URL → 3) durable
-server-side history (fold in with the deploy, since both want a small backend).
+**Recommended order:** 1) git ✅ (local, done) → 2) deploy to a public URL →
+3) durable server-side history (fold in with the deploy).
 
+- **Save the project to git** — ✅ **done (local)**: repo at `Kids/Lernfuchs/`,
+  branch `main`, repo-local personal placeholder identity
+  (`Vamsi Pulivarthi <vamsi@users.noreply.github.com>`); `.env.local`,
+  `node_modules`, `.next`, and `/Tests/` + `*.pdf` are excluded. Still to do:
+  create a **personal GitHub** account, `gh auth login`, set the real commit
+  email, then push.
 - **Deploy to a public URL (Vercel)** so friends can use it — NOT done yet.
   Before sharing: add a **shared passcode gate** on the API routes (friends spend
   the owner's API credits) and set a **monthly spend cap** in the Anthropic
   Console. Decide the default model for the shared app (Sonnet recommended).
-- **Save the project to git** (version control + backup; also a prerequisite for
-  the Vercel deploy). No git repo yet.
 - **Durable / portable history**: the Verlauf is browser-local (localStorage),
   per-device, and lost if browser data is cleared. Consider history backed by
   files or a database so it survives across devices/browsers and isn't easily
