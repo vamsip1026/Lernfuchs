@@ -1,0 +1,86 @@
+# The Lernfuchs Story 🦊
+
+How a simple idea — "let me generate practice tests for my son" — grew, one
+iteration at a time, into a real app. This was my **first AI project**, built
+step by step together with an AI coding assistant.
+
+**What Lernfuchs is:** a little web app where you pick a school year, subject and
+topic, and the AI instantly writes a full practice test — questions, solutions
+and explanations — aligned to the Bavarian *LehrplanPLUS* and my son's actual
+schoolbooks. He can take it on screen (auto-graded) or print it as a clean PDF.
+
+Each chapter below is one step in the journey: what we added, and why.
+
+---
+
+## 1. The first version
+The starting point: choose **Klasse, Fach and Thema** (plus a test type and
+difficulty), and the AI generates a complete test. From day one it worked two
+ways — an **interactive quiz** on screen and a **printable PDF** to do with a
+pencil — all in German, for the Gymnasium in Bayern.
+
+## 2. Real Bavarian exam types
+A generic "test type" wasn't how school actually works, so we switched to real
+**Prüfungsarten** — Stegreifaufgabe (*Ex*), angekündigter kleiner
+Leistungsnachweis (kLN), Schulaufgabe, Test/Vokabeltest, mündliche Abfrage.
+Picking one now shapes the whole paper (length, difficulty, number of
+questions), so you no longer set the count by hand.
+
+## 3. Getting the curriculum right
+My son pointed out the topics didn't match his year. We checked the **official
+LehrplanPLUS** and fixed Klasse 8 properly — dropping Geographie (not taught that
+year), adding Chemie, and correcting Mathe/Physik/Geschichte topics. We also fed
+in his **actual textbooks** (Green Line, Lambacher Schweizer, Découvertes …) so
+the questions follow the books he really uses.
+
+## 4. Practice exactly today's topic
+Often he only needs the one small thing covered that day. We added an optional
+**Schwerpunkt** (sub-topic) field, with an AI button that **suggests sub-topics**
+to pick from — so a test can zoom right in on, say, "Steigung aus zwei Punkten."
+
+## 5. Grades
+To make practice feel real, the interactive mode now shows a **Note (1–6)** based
+on the points scored, with the German grade label and percentage.
+
+## 6. Better PDFs
+We made the printable side genuinely useful: a toggle to **leave the answers off**
+(so I can hand him a clean sheet and keep the answer key for myself), a
+**one-click PDF download** that skips the browser dialog, and a small
+**Notenschlüssel** (grading scale) printed at the bottom.
+
+## 7. A memory of past tests
+No more losing work: every generated test is now **saved automatically** in a
+**Verlauf** (history) list — reopen, retake, or re-print any of them. After an
+accidental deletion, we also added a **confirmation prompt** before anything is
+removed.
+
+## 8. Every school year
+We seeded the topics for **all years, Klasse 5–10** (checked against the official
+curriculum), so the app grows with him instead of being stuck on one year.
+
+## 9. A friendlier look (Lernfuchs 🦊)
+Time for some polish and a name. We added a colourful hero header, **per-subject
+colours and emojis**, a **progress bar** while taking a test, and a **motivating
+results screen** (a big grade badge and an encouraging line). It also follows the
+device's **dark mode** automatically — while the printed sheet stays clean.
+
+## 10. Tidying up
+As I started thinking about more kid apps, we reorganized everything into a
+**`Kids` folder** with **Lernfuchs** as the first app inside it. We also started
+showing the **textbook** on screen and on the PDF as a read-only reference, so
+it's clear which book a test is based on.
+
+## 11. Flexible scope (the Inhalte-builder)
+Real exams often span several topics — some in full, some only a couple of
+sub-topics. So the single-topic picker became an **Inhalte-builder**: add as many
+Themen as you like, and for each one either keep the whole topic or narrow it to
+chosen sub-topics. Perfect for building a Schulaufgabe exactly like the syllabus.
+
+## 12. What's next
+Still on the list: putting the project under **version control (git)**, giving it
+a **public web address** so friends can use it too, and a **more durable history**
+that isn't tied to a single browser.
+
+---
+
+*This story is updated whenever a notable new iteration ships.*
