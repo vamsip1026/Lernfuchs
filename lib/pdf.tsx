@@ -7,16 +7,13 @@ import {
   View,
 } from "@react-pdf/renderer";
 import { lehrwerkFuer } from "./curriculum";
+import { notenschluesselText } from "./noten";
 import type { Aufgabe, TestPaper } from "./schema";
 
 // Dieses Modul wird nur dynamisch (beim Klick) geladen, damit @react-pdf nicht
 // im SSR-/Initial-Bundle landet.
 
 const BUCH = ["A", "B", "C", "D", "E", "F"];
-
-const NOTE_LINE =
-  "Notenschlüssel (Richtwert): 1 ab 85 %  ·  2 ab 70 %  ·  3 ab 55 %  ·  4 ab 40 %  ·  5 ab 20 %  ·  6 (unter 20 %). " +
-  "Prozent der erreichten Punkte; der genaue Schlüssel kann je nach Lehrkraft abweichen.";
 
 const styles = StyleSheet.create({
   page: {
@@ -107,7 +104,10 @@ function TestDocument({
         {paper.aufgaben.map((a, i) => (
           <QuestionView key={i} a={a} i={i} />
         ))}
-        <Text style={styles.note}>{NOTE_LINE}</Text>
+        <Text style={styles.note}>
+          Notenschlüssel (Richtwert): {notenschluesselText(gesamt)}. Punkte des
+          Tests; der genaue Schlüssel kann je nach Lehrkraft abweichen.
+        </Text>
       </Page>
 
       {mitLoesungen && (

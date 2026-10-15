@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { lehrwerkFuer } from "@/lib/curriculum";
+import { noteFuerProzent, notenschluesselText } from "@/lib/noten";
 import type { Aufgabe, TestPaper } from "@/lib/schema";
 import { ermutigung, fachStil } from "@/lib/ui";
 
@@ -19,24 +20,6 @@ function normalize(s: string): string {
 }
 
 type Grade = "correct" | "incorrect" | "review";
-
-// Notenschlüssel (Richtwert, prozentbasiert). Schulen/Lehrkräfte verwenden
-// leicht unterschiedliche Grenzen – hier eine gängige Gymnasialskala.
-const NOTEN_SCHLUESSEL: { minProzent: number; note: number; label: string }[] = [
-  { minProzent: 85, note: 1, label: "sehr gut" },
-  { minProzent: 70, note: 2, label: "gut" },
-  { minProzent: 55, note: 3, label: "befriedigend" },
-  { minProzent: 40, note: 4, label: "ausreichend" },
-  { minProzent: 20, note: 5, label: "mangelhaft" },
-  { minProzent: 0, note: 6, label: "ungenügend" },
-];
-
-function noteFuerProzent(prozent: number) {
-  return (
-    NOTEN_SCHLUESSEL.find((n) => prozent >= n.minProzent) ??
-    NOTEN_SCHLUESSEL[NOTEN_SCHLUESSEL.length - 1]
-  );
-}
 
 /** Farbklassen für das Noten-Abzeichen (hell/dunkel). */
 function noteBadge(note: number): string {
@@ -515,6 +498,7 @@ function PrintView({
   paper: TestPaper;
   mitLoesungen: boolean;
 }) {
+  const gesamt = paper.aufgaben.reduce((s, a) => s + a.punkte, 0);
   return (
     <div>
       <ol className="space-y-6">
@@ -565,16 +549,10 @@ function PrintView({
       {/* Notenschlüssel-Hinweis (Richtwert) am Ende des Aufgabenblatts */}
       <p className="avoid-break mt-8 border-t border-slate-200 pt-3 text-xs text-slate-500 dark:border-slate-800 dark:text-slate-400">
         <span className="font-medium">Notenschlüssel (Richtwert): </span>
-        {NOTEN_SCHLUESSEL.map((n) =>
-          n.note === 6
-            ? `6 (unter ${
-                NOTEN_SCHLUESSEL.find((x) => x.note === 5)?.minProzent
-              } %)`
-            : `${n.note} ab ${n.minProzent} %`,
-        ).join("  ·  ")}
+        {notenschluesselText(gesamt)}
         <span className="mt-1 block">
-          Prozent der erreichten Punkte. Der genaue Schlüssel kann je nach
-          Lehrkraft abweichen.
+          Punkte des Tests. Der genaue Schlüssel kann je nach Lehrkraft
+          abweichen.
         </span>
       </p>
 
