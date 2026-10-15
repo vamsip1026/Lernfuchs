@@ -6,6 +6,8 @@
   --foreground: #0f172a;
   --muted: #64748b;
   --border: #e2e8f0;
+  /* etwas dunklerer Rand für Eingabefelder, damit die Boxen sichtbar sind */
+  --input-border: #94a3b8;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -15,6 +17,7 @@
     --foreground: #e8ecf6;
     --muted: #94a3b8;
     --border: #27314a;
+    --input-border: #475569;
   }
 }
 
@@ -42,7 +45,7 @@ body {
 .input {
   width: 100%;
   border-radius: 0.75rem;
-  border: 1px solid var(--border);
+  border: 1px solid var(--input-border);
   background: var(--surface);
   padding: 0.6rem 0.8rem;
   font-size: 1rem;

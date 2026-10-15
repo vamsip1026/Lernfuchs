@@ -206,7 +206,7 @@ export default function Home() {
         className="space-y-5 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200 sm:p-6 dark:bg-slate-900 dark:ring-slate-800"
       >
         {/* Klasse */}
-        <Field label="Klasse">
+        <Field label="Klasse (Class)">
           <select
             className="input"
             value={klasse}
@@ -229,7 +229,7 @@ export default function Home() {
         </Field>
 
         {/* Fach */}
-        <Field label="Fach">
+        <Field label="Fach (Subject)">
           <select
             className="input"
             value={fach}
@@ -254,14 +254,14 @@ export default function Home() {
         {/* Inhalte (Themen + optional Unterthemen) */}
         <div className="block">
           <span className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">
-            Inhalte (Themen)
+            Inhalte (Topics)
           </span>
           {inhalte.length > 0 && (
             <ul className="mb-3 space-y-2">
               {inhalte.map((item) => (
                 <li
                   key={item.id}
-                  className="rounded-xl border border-slate-200 p-3 dark:border-slate-700"
+                  className="rounded-xl border border-slate-300 p-3 dark:border-slate-600"
                 >
                   <div className="flex items-start justify-between gap-2">
                     <p className="font-medium text-slate-800 dark:text-slate-100">
@@ -459,7 +459,7 @@ export default function Home() {
         </div>
 
         {/* Prüfungsart */}
-        <Field label="Prüfungsart">
+        <Field label="Prüfungsart (Test type)">
           <select
             className="input"
             value={pruefungsart}
@@ -478,7 +478,7 @@ export default function Home() {
 
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
           {/* Schwierigkeit */}
-          <Field label="Schwierigkeit">
+          <Field label="Schwierigkeit (Difficulty)">
             <select
               className="input"
               value={schwierigkeit}
@@ -493,7 +493,7 @@ export default function Home() {
           </Field>
 
           {/* Aufgabenformat */}
-          <Field label="Aufgabenformat">
+          <Field label="Aufgabenformat (Question format)">
             <select
               className="input"
               value={aufgabenformat}
