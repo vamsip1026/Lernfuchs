@@ -60,6 +60,9 @@ export function TestView({
 
   const stil = fachStil(paper.fach);
   const lehrwerk = lehrwerkFuer(paper.klasse, paper.fach);
+  // Übungsblatt ist nicht benotet (keine Punkte/Note). Alte Verlauf-Einträge
+  // ohne Flag gelten als benotet.
+  const benotet = paper.benotet !== false;
 
   async function handlePdf() {
     setPdfLaedt(true);
@@ -97,10 +100,25 @@ export function TestView({
       0,
     );
     const zuPruefen = grades.filter((g) => g === "review").length;
+    const richtig = grades.filter((g) => g === "correct").length;
+    const autoAnzahl = paper.aufgaben.filter((a) => a.typ !== "offen").length;
     const prozent =
       autoPunkte > 0 ? Math.round((erreicht / autoPunkte) * 100) : null;
     const note = prozent === null ? null : noteFuerProzent(prozent);
-    return { grades, erreicht, autoPunkte, zuPruefen, prozent, note };
+    // Prozent für die (nicht benotete) Übungsblatt-Rückmeldung aus der Anzahl.
+    const prozentAnzahl =
+      autoAnzahl > 0 ? Math.round((richtig / autoAnzahl) * 100) : null;
+    return {
+      grades,
+      erreicht,
+      autoPunkte,
+      zuPruefen,
+      richtig,
+      autoAnzahl,
+      prozent,
+      prozentAnzahl,
+      note,
+    };
   }, [paper.aufgaben, antworten]);
 
   function setAntwort(i: number, v: string) {
@@ -179,8 +197,9 @@ export function TestView({
           {lehrwerk && ` · Lehrwerk: ${lehrwerk}`}
         </p>
         <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
-          {paper.aufgaben.length} Aufgaben · {gesamtPunkte} Punkte ·
-          Bearbeitungszeit: {paper.bearbeitungszeit}
+          {paper.aufgaben.length} Aufgaben
+          {benotet && ` · ${gesamtPunkte} Punkte`} · Bearbeitungszeit:{" "}
+          {paper.bearbeitungszeit}
           {mode === "drucken" && "  ·  Name: ______________   Datum: __________"}
         </p>
       </header>
@@ -210,9 +229,14 @@ export function TestView({
           setAntwort={setAntwort}
           abgegeben={abgegeben}
           grades={auswertung.grades}
+          benotet={benotet}
         />
       ) : (
-        <PrintView paper={paper} mitLoesungen={loesungenDrucken} />
+        <PrintView
+          paper={paper}
+          mitLoesungen={loesungenDrucken}
+          benotet={benotet}
+        />
       )}
 
       {/* Interaktiv: Abgeben / Auswertung */}
@@ -227,40 +251,57 @@ export function TestView({
             </button>
           ) : (
             <div className="rounded-2xl bg-white p-6 text-center shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-800">
-              {auswertung.note && (
+              {benotet ? (
                 <>
-                  <div
-                    className={`mx-auto grid h-24 w-24 place-items-center rounded-full shadow-sm ring-4 ${noteBadge(
-                      auswertung.note.note,
-                    )}`}
-                  >
-                    <span className="text-5xl font-extrabold">
-                      {auswertung.note.note}
-                    </span>
-                  </div>
-                  <p className="mt-3 text-xl font-bold text-slate-900 dark:text-slate-100">
-                    {ermutigung(auswertung.note.note)}
-                  </p>
-                  <p className="mt-1 text-slate-600 dark:text-slate-300">
-                    Note {auswertung.note.note} ({auswertung.note.label}) ·{" "}
-                    {auswertung.prozent} %
+                  {auswertung.note && (
+                    <>
+                      <div
+                        className={`mx-auto grid h-24 w-24 place-items-center rounded-full shadow-sm ring-4 ${noteBadge(
+                          auswertung.note.note,
+                        )}`}
+                      >
+                        <span className="text-5xl font-extrabold">
+                          {auswertung.note.note}
+                        </span>
+                      </div>
+                      <p className="mt-3 text-xl font-bold text-slate-900 dark:text-slate-100">
+                        {ermutigung(auswertung.note.note)}
+                      </p>
+                      <p className="mt-1 text-slate-600 dark:text-slate-300">
+                        Note {auswertung.note.note} ({auswertung.note.label}) ·{" "}
+                        {auswertung.prozent} %
+                      </p>
+                    </>
+                  )}
+                  <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
+                    {auswertung.erreicht} / {auswertung.autoPunkte} Punkte
+                    (automatisch bewertet)
                   </p>
                 </>
+              ) : (
+                <>
+                  <p className="text-2xl font-extrabold text-slate-900 dark:text-slate-100">
+                    {auswertung.richtig} von {auswertung.autoAnzahl} richtig
+                  </p>
+                  {auswertung.prozentAnzahl !== null && (
+                    <p className="mt-2 text-lg font-bold text-indigo-600 dark:text-indigo-300">
+                      {ermutigung(noteFuerProzent(auswertung.prozentAnzahl).note)}
+                    </p>
+                  )}
+                </>
               )}
-              <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
-                {auswertung.erreicht} / {auswertung.autoPunkte} Punkte
-                (automatisch bewertet)
-              </p>
               {auswertung.zuPruefen > 0 && (
                 <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
                   {auswertung.zuPruefen} offene Antwort(en) bitte selbst mit der
                   Musterlösung / dem Erwartungshorizont vergleichen.
                 </p>
               )}
-              <p className="mt-1 text-xs text-slate-400 dark:text-slate-500">
-                Richtwert nach prozentualer Punktzahl – der genaue Notenschlüssel
-                kann je nach Lehrkraft abweichen.
-              </p>
+              {benotet && (
+                <p className="mt-1 text-xs text-slate-400 dark:text-slate-500">
+                  Richtwert nach prozentualer Punktzahl – der genaue
+                  Notenschlüssel kann je nach Lehrkraft abweichen.
+                </p>
+              )}
               <div className="mt-4 flex justify-center gap-2">
                 <button
                   onClick={() => {
@@ -318,12 +359,14 @@ function InteractiveView({
   setAntwort,
   abgegeben,
   grades,
+  benotet,
 }: {
   paper: TestPaper;
   antworten: Record<number, string>;
   setAntwort: (i: number, v: string) => void;
   abgegeben: boolean;
   grades: Grade[];
+  benotet: boolean;
 }) {
   return (
     <ol className="space-y-5">
@@ -348,9 +391,11 @@ function InteractiveView({
                 </span>
                 {a.frage}
               </p>
-              <span className="shrink-0 rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-500 dark:bg-slate-800 dark:text-slate-400">
-                {a.punkte} P
-              </span>
+              {benotet && (
+                <span className="shrink-0 rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-500 dark:bg-slate-800 dark:text-slate-400">
+                  {a.punkte} P
+                </span>
+              )}
             </div>
 
             <div className="mt-3">
@@ -494,9 +539,11 @@ function AnswerInput({
 function PrintView({
   paper,
   mitLoesungen,
+  benotet,
 }: {
   paper: TestPaper;
   mitLoesungen: boolean;
+  benotet: boolean;
 }) {
   const gesamt = paper.aufgaben.reduce((s, a) => s + a.punkte, 0);
   return (
@@ -509,9 +556,11 @@ function PrintView({
                 <span className="mr-2 text-slate-400">{i + 1}.</span>
                 {a.frage}
               </p>
-              <span className="shrink-0 text-sm text-slate-500 dark:text-slate-400">
-                ({a.punkte} P)
-              </span>
+              {benotet && (
+                <span className="shrink-0 text-sm text-slate-500 dark:text-slate-400">
+                  ({a.punkte} P)
+                </span>
+              )}
             </div>
             {a.typ === "multiple_choice" && a.optionen.length > 0 ? (
               <ul className="mt-2 space-y-1 pl-6">
@@ -546,15 +595,17 @@ function PrintView({
         ))}
       </ol>
 
-      {/* Notenschlüssel-Hinweis (Richtwert) am Ende des Aufgabenblatts */}
-      <p className="avoid-break mt-8 border-t border-slate-200 pt-3 text-xs text-slate-500 dark:border-slate-800 dark:text-slate-400">
-        <span className="font-medium">Notenschlüssel (Richtwert): </span>
-        {notenschluesselText(gesamt)}
-        <span className="mt-1 block">
-          Punkte des Tests. Der genaue Schlüssel kann je nach Lehrkraft
-          abweichen.
-        </span>
-      </p>
+      {/* Notenschlüssel-Hinweis (Richtwert) – nur bei benoteten Tests */}
+      {benotet && (
+        <p className="avoid-break mt-8 border-t border-slate-200 pt-3 text-xs text-slate-500 dark:border-slate-800 dark:text-slate-400">
+          <span className="font-medium">Notenschlüssel (Richtwert): </span>
+          {notenschluesselText(gesamt)}
+          <span className="mt-1 block">
+            Punkte des Tests. Der genaue Schlüssel kann je nach Lehrkraft
+            abweichen.
+          </span>
+        </p>
+      )}
 
       {/* Lösungsschlüssel – nur wenn gewünscht; startet auf einer neuen Seite */}
       {mitLoesungen && (

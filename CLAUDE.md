@@ -127,14 +127,14 @@ The server reads env vars only at startup — restart after changing them.
   subjects; AI grading of free-text/offen answers.
 
 ### Refinements / polish
-- Refine the **Prüfungsart names/labels** — wording still being tuned.
-- Add **English field-name labels** — open question: full bilingual toggle vs.
-  English labels alongside the German ones.
-- Revisit the **Übungsblatt** helper note/description — wording is an **open
-  question**.
-- **PDF Notenschlüssel**: show **point ranges** (e.g. "Note 1: 23–25 P") instead
-  of percentages. (Feasible: the PDF knows total points, so derive ranges from
-  the existing `NOTEN_SCHLUESSEL` % thresholds × total points.)
+- Add **English field-name labels** — ✅ done (German label + "(English)" in
+  brackets on the form fields).
+- **Übungsblatt** — ✅ resolved: not a graded Leistungsnachweis, so **no points,
+  no Note, no Notenschlüssel**; interactive shows "X von Y richtig" + praise.
+  Graded types keep points + Note. Driven by `paper.benotet` (set server-side).
+- **PDF Notenschlüssel → point ranges** — ✅ done (e.g. "1: 22–25 P"), shared via
+  `lib/noten.ts` across interactive/print/PDF.
+- Refine the **Prüfungsart names/labels** — wording still being tuned (open).
 
 ### Going public / product (future)
 - **Make the URL public / available on the internet** — hosting + a domain

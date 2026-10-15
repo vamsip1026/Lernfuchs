@@ -50,14 +50,22 @@ const styles = StyleSheet.create({
   grau: { color: "#555555" },
 });
 
-function QuestionView({ a, i }: { a: Aufgabe; i: number }) {
+function QuestionView({
+  a,
+  i,
+  benotet,
+}: {
+  a: Aufgabe;
+  i: number;
+  benotet: boolean;
+}) {
   return (
     <View style={styles.qItem} wrap={false}>
       <View style={styles.qHead}>
         <Text style={styles.qText}>
           {i + 1}. {a.frage}
         </Text>
-        <Text style={styles.points}>({a.punkte} P)</Text>
+        {benotet && <Text style={styles.points}>({a.punkte} P)</Text>}
       </View>
       {a.typ === "multiple_choice" && a.optionen.length > 0 ? (
         a.optionen.map((o, k) => (
@@ -85,6 +93,7 @@ function TestDocument({
 }) {
   const gesamt = paper.aufgaben.reduce((s, a) => s + a.punkte, 0);
   const lehrwerk = lehrwerkFuer(paper.klasse, paper.fach);
+  const benotet = paper.benotet !== false;
   return (
     <Document title={paper.titel}>
       <Page size="A4" style={styles.page}>
@@ -95,19 +104,22 @@ function TestDocument({
         </Text>
         {lehrwerk && <Text style={styles.meta}>Lehrwerk: {lehrwerk}</Text>}
         <Text style={styles.meta}>
-          {paper.aufgaben.length} Aufgaben · {gesamt} Punkte · Bearbeitungszeit:{" "}
+          {paper.aufgaben.length} Aufgaben
+          {benotet ? ` · ${gesamt} Punkte` : ""} · Bearbeitungszeit:{" "}
           {paper.bearbeitungszeit}
         </Text>
         <Text style={[styles.meta, { marginBottom: 10 }]}>
           Name: ______________ Datum: __________
         </Text>
         {paper.aufgaben.map((a, i) => (
-          <QuestionView key={i} a={a} i={i} />
+          <QuestionView key={i} a={a} i={i} benotet={benotet} />
         ))}
-        <Text style={styles.note}>
-          Notenschlüssel (Richtwert): {notenschluesselText(gesamt)}. Punkte des
-          Tests; der genaue Schlüssel kann je nach Lehrkraft abweichen.
-        </Text>
+        {benotet && (
+          <Text style={styles.note}>
+            Notenschlüssel (Richtwert): {notenschluesselText(gesamt)}. Punkte des
+            Tests; der genaue Schlüssel kann je nach Lehrkraft abweichen.
+          </Text>
+        )}
       </Page>
 
       {mitLoesungen && (

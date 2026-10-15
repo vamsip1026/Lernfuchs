@@ -128,6 +128,8 @@ export async function generateTestPaper(
   }
   // Thema deterministisch als Umfangs-Zusammenfassung setzen (Header/Verlauf/PDF).
   paper.thema = inhalteSummary(req.inhalte);
+  // Übungsblatt ist kein benoteter Leistungsnachweis → keine Punkte/Note.
+  paper.benotet = req.pruefungsart !== "uebungsblatt";
   return paper;
 }
 

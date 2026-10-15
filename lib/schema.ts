@@ -44,6 +44,9 @@ export const TestPaperSchema = z.object({
   klasse: z.number().int(),
   thema: z.string(),
   pruefungsart: z.string().describe("Art der Prüfung (z. B. Schulaufgabe)"),
+  // true = benoteter Leistungsnachweis (Punkte/Note); false = Übungsblatt.
+  // Wird serverseitig deterministisch gesetzt.
+  benotet: z.boolean(),
   schwierigkeit: z.string(),
   bearbeitungszeit: z
     .string()
