@@ -42,6 +42,36 @@ function neueId(): string {
     : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
 }
 
+const PASS_KEY = "app_passwort";
+
+// POST-Helfer: hängt den gespeicherten Zugangscode an. Bei 401 wird einmal nach
+// dem Code gefragt und erneut versucht. Ohne serverseitigen Schutz (lokal)
+// passiert nichts davon.
+async function apiFetch(url: string, body: unknown): Promise<Response> {
+  const senden = (code: string | null) =>
+    fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...(code ? { "x-app-passwort": code } : {}),
+      },
+      body: JSON.stringify(body),
+    });
+
+  const code =
+    typeof window !== "undefined" ? localStorage.getItem(PASS_KEY) : null;
+  let res = await senden(code);
+  if (res.status === 401 && typeof window !== "undefined") {
+    const eingabe = window.prompt("Zugangscode für Lernfuchs:");
+    if (eingabe) {
+      localStorage.setItem(PASS_KEY, eingabe);
+      res = await senden(eingabe);
+      if (res.status === 401) localStorage.removeItem(PASS_KEY);
+    }
+  }
+  return res;
+}
+
 export default function Home() {
   const [klasse, setKlasse] = useState<number>(8);
   const [fach, setFach] = useState<string>("Mathematik");
@@ -107,10 +137,10 @@ export default function Home() {
   async function vorschlagenFuer(item: ScopeItem) {
     patchItem(item.id, { laedt: true, fehler: null });
     try {
-      const res = await fetch("/api/subtopics", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ klasse, fach, thema: item.thema }),
+      const res = await apiFetch("/api/subtopics", {
+        klasse,
+        fach,
+        thema: item.thema,
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data?.error ?? "Unbekannter Fehler.");
@@ -158,20 +188,16 @@ export default function Home() {
 
     setLoading(true);
     try {
-      const res = await fetch("/api/generate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          klasse,
-          fach,
-          inhalte: inhalte.map((i) => ({
-            thema: i.thema,
-            unterthemen: i.unterthemen,
-          })),
-          pruefungsart,
-          schwierigkeit,
-          aufgabenformat,
-        }),
+      const res = await apiFetch("/api/generate", {
+        klasse,
+        fach,
+        inhalte: inhalte.map((i) => ({
+          thema: i.thema,
+          unterthemen: i.unterthemen,
+        })),
+        pruefungsart,
+        schwierigkeit,
+        aufgabenformat,
       });
       const data = await res.json();
       if (!res.ok) {

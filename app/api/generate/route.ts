@@ -1,11 +1,19 @@
 import { NextResponse } from "next/server";
 import { generateTestPaper } from "@/lib/anthropic";
+import { hatZugang } from "@/lib/auth";
 import { GenerateRequestSchema } from "@/lib/schema";
 
 // Generierung kann je nach Modell/Länge etwas dauern.
 export const maxDuration = 120;
 
 export async function POST(request: Request) {
+  if (!hatZugang(request)) {
+    return NextResponse.json(
+      { error: "Zugangscode fehlt oder ist falsch." },
+      { status: 401 },
+    );
+  }
+
   let body: unknown;
   try {
     body = await request.json();

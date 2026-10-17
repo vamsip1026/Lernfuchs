@@ -114,10 +114,12 @@ current capabilities are under "Features implemented" above.
 **Recommended order:** 1) deploy to a public URL → 2) durable server-side
 history.
 
-- **Deploy to a public URL (Vercel)** — before sharing, add a **shared passcode
-  gate** on the API routes (friends spend the owner's API credits) and a
-  **monthly spend cap** in the Anthropic Console; pick the default model (Sonnet
-  recommended).
+- **Deploy to a public URL (Vercel)** — the **shared passcode gate is built**
+  (set env `APP_PASSWORT` in Vercel to activate; `lib/auth.ts` + client prompt in
+  `app/page.tsx`; inert when the var is unset, e.g. locally). Still to do at
+  deploy: set a **monthly spend cap** in the Anthropic Console, pick the default
+  model (Sonnet recommended), and import the repo into Vercel with env vars
+  `ANTHROPIC_API_KEY` (+ optional `ANTHROPIC_MODEL`, `APP_PASSWORT`).
 - **Durable / portable history** — the Verlauf is browser-local (localStorage),
   per-device, lost if browser data is cleared; back it with files or a database.
 - **Refine the Prüfungsart names/labels** — wording still being tuned.
