@@ -99,22 +99,21 @@ The server reads env vars only at startup — restart after changing them.
 - German UI/labels. Keep comments and labels German to match existing code.
 - All form fields are mandatory; Inhalte needs ≥1 Thema (sub-topics optional).
 - Don't commit secrets; `.env.local` is git-ignored.
-- **Version control (local git).** After a notable iteration, commit:
-  `git -C <path>/Lernfuchs add -A && git commit -m "<what changed>"`. Git must
-  run with the sandbox off (it can't write `.git/` inside the sandbox); it's
-  local/offline — nothing is pushed.
+- **Version control (git + GitHub).** Remote `origin` =
+  **github.com/vamsip1026/Lernfuchs** (private; personal account `vamsip1026`;
+  commit identity is the repo-local personal noreply). After a notable iteration:
+  `git -C <path>/Lernfuchs add -A && git commit -m "<what changed>" && git -C <path>/Lernfuchs push`.
+  Run git with the sandbox off (it can't write `.git/` or reach the network in
+  the sandbox).
 
 ## Open / next steps
 
 Only open items live here. **Completed work is chronicled in `STORY.md`**;
 current capabilities are under "Features implemented" above.
 
-**Recommended order:** 1) push to GitHub (personal account) → 2) deploy to a
-public URL → 3) durable server-side history.
+**Recommended order:** 1) deploy to a public URL → 2) durable server-side
+history.
 
-- **Put it on GitHub** — local git is done; still need a **personal GitHub**
-  account, `gh auth login`, set the real commit email, then push (+ a domain to
-  make it publicly reachable).
 - **Deploy to a public URL (Vercel)** — before sharing, add a **shared passcode
   gate** on the API routes (friends spend the owner's API credits) and a
   **monthly spend cap** in the Anthropic Console; pick the default model (Sonnet

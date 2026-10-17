@@ -90,8 +90,9 @@ got **clearer, darker borders** so they stand out.
 
 ## 14. A safety net (version control)
 The whole project went under **git**: every change is now a save point we can
-roll back to, with the secret API key kept safely out of the history. (Publishing
-it online on GitHub comes later.)
+roll back to, with the secret API key kept safely out of the history. It then
+got an online home too — a **private GitHub repo** on a personal account — so
+there's an off-machine backup (and a base to deploy from later).
 
 ## 15. What's next
 Still on the list: a **public web address** so friends can use it too, a **more
