@@ -44,32 +44,19 @@ function neueId(): string {
 
 const PASS_KEY = "app_passwort";
 
-// POST-Helfer: hängt den gespeicherten Zugangscode an. Bei 401 wird einmal nach
-// dem Code gefragt und erneut versucht. Ohne serverseitigen Schutz (lokal)
-// passiert nichts davon.
+// POST-Helfer: hängt den gespeicherten Zugangscode (falls vorhanden) als Header
+// an. Der Schutz ist nur aktiv, wenn der Server APP_PASSWORT gesetzt hat.
 async function apiFetch(url: string, body: unknown): Promise<Response> {
-  const senden = (code: string | null) =>
-    fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        ...(code ? { "x-app-passwort": code } : {}),
-      },
-      body: JSON.stringify(body),
-    });
-
   const code =
     typeof window !== "undefined" ? localStorage.getItem(PASS_KEY) : null;
-  let res = await senden(code);
-  if (res.status === 401 && typeof window !== "undefined") {
-    const eingabe = window.prompt("Zugangscode für Lernfuchs:");
-    if (eingabe) {
-      localStorage.setItem(PASS_KEY, eingabe);
-      res = await senden(eingabe);
-      if (res.status === 401) localStorage.removeItem(PASS_KEY);
-    }
-  }
-  return res;
+  return fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      ...(code ? { "x-app-passwort": code } : {}),
+    },
+    body: JSON.stringify(body),
+  });
 }
 
 export default function Home() {
@@ -90,10 +77,17 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const [paper, setPaper] = useState<TestPaper | null>(null);
   const [verlauf, setVerlauf] = useState<VerlaufEintrag[]>([]);
+  const [passcodeRequired, setPasscodeRequired] = useState(false);
+  const [passcode, setPasscode] = useState<string>("");
 
-  // Verlauf erst im Browser laden (vermeidet SSR-Hydration-Probleme).
+  // Verlauf laden + prüfen, ob ein Zugangscode nötig ist (nur im Browser).
   useEffect(() => {
     setVerlauf(ladeVerlauf());
+    setPasscode(localStorage.getItem(PASS_KEY) ?? "");
+    fetch("/api/config")
+      .then((r) => r.json())
+      .then((d) => setPasscodeRequired(Boolean(d?.passcodeRequired)))
+      .catch(() => {});
   }, []);
 
   const faecher = useMemo(() => faecherFuerKlasse(klasse), [klasse]);
@@ -231,6 +225,24 @@ export default function Home() {
         onSubmit={handleSubmit}
         className="space-y-5 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200 sm:p-6 dark:bg-slate-900 dark:ring-slate-800"
       >
+        {/* Zugangscode – nur wenn der Server geschützt ist */}
+        {passcodeRequired && (
+          <Field label="Zugangscode (Access code)">
+            <input
+              type="text"
+              className="input"
+              placeholder="Code von Vamsi"
+              value={passcode}
+              onChange={(e) => {
+                setPasscode(e.target.value);
+                if (typeof window !== "undefined") {
+                  localStorage.setItem(PASS_KEY, e.target.value);
+                }
+              }}
+            />
+          </Field>
+        )}
+
         {/* Klasse */}
         <Field label="Klasse (Class)">
           <select
