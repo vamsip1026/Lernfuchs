@@ -76,10 +76,27 @@ sub-topics. So the single-topic picker became an **Inhalte-builder**: add as man
 Themen as you like, and for each one either keep the whole topic or narrow it to
 chosen sub-topics. Perfect for building a Schulaufgabe exactly like the syllabus.
 
-## 12. What's next
-Still on the list: putting the project under **version control (git)**, giving it
-a **public web address** so friends can use it too, and a **more durable history**
-that isn't tied to a single browser.
+## 12. Points where they belong
+Grading got more honest. A test only shows **points, a Note and a Notenschlüssel
+when it's actually a graded Leistungsnachweis**; an **Übungsblatt stays
+pressure-free** — no points, no grade, just "X von Y richtig" and an encouraging
+line. And the printed grading key now lists **point ranges** (e.g. "Note 1:
+22–25 P") instead of percentages, so it reads like a real exam key.
+
+## 13. Easier to read
+Everyday polish: each field now carries an **English label in brackets** —
+Klasse (Class), Fach (Subject), Prüfungsart (Test type) … — and the input boxes
+got **clearer, darker borders** so they stand out.
+
+## 14. A safety net (version control)
+The whole project went under **git**: every change is now a save point we can
+roll back to, with the secret API key kept safely out of the history. (Publishing
+it online on GitHub comes later.)
+
+## 15. What's next
+Still on the list: a **public web address** so friends can use it too, a **more
+durable history** that isn't tied to a single browser, and product ideas like
+**monetization** and **free sample tests**.
 
 ---
 

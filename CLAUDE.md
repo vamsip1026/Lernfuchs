@@ -106,39 +106,25 @@ The server reads env vars only at startup — restart after changing them.
 
 ## Open / next steps
 
-**Recommended order:** 1) git ✅ (local, done) → 2) deploy to a public URL →
-3) durable server-side history (fold in with the deploy).
+Only open items live here. **Completed work is chronicled in `STORY.md`**;
+current capabilities are under "Features implemented" above.
 
-- **Save the project to git** — ✅ **done (local)**: repo at `Kids/Lernfuchs/`,
-  branch `main`, repo-local personal placeholder identity
-  (`Vamsi Pulivarthi <vamsi@users.noreply.github.com>`); `.env.local`,
-  `node_modules`, `.next`, and `/Tests/` + `*.pdf` are excluded. Still to do:
-  create a **personal GitHub** account, `gh auth login`, set the real commit
-  email, then push.
-- **Deploy to a public URL (Vercel)** so friends can use it — NOT done yet.
-  Before sharing: add a **shared passcode gate** on the API routes (friends spend
-  the owner's API credits) and set a **monthly spend cap** in the Anthropic
-  Console. Decide the default model for the shared app (Sonnet recommended).
-- **Durable / portable history**: the Verlauf is browser-local (localStorage),
-  per-device, and lost if browser data is cleared. Consider history backed by
-  files or a database so it survives across devices/browsers and isn't easily
-  lost. (A delete-confirmation prompt is now in place.)
-- Possible later: Informatik (NTG 9/10) and Politik und Gesellschaft (Kl. 10)
+**Recommended order:** 1) push to GitHub (personal account) → 2) deploy to a
+public URL → 3) durable server-side history.
+
+- **Put it on GitHub** — local git is done; still need a **personal GitHub**
+  account, `gh auth login`, set the real commit email, then push (+ a domain to
+  make it publicly reachable).
+- **Deploy to a public URL (Vercel)** — before sharing, add a **shared passcode
+  gate** on the API routes (friends spend the owner's API credits) and a
+  **monthly spend cap** in the Anthropic Console; pick the default model (Sonnet
+  recommended).
+- **Durable / portable history** — the Verlauf is browser-local (localStorage),
+  per-device, lost if browser data is cleared; back it with files or a database.
+- **Refine the Prüfungsart names/labels** — wording still being tuned.
+- **Possible later** — Informatik (NTG 9/10) & Politik und Gesellschaft (Kl. 10)
   subjects; AI grading of free-text/offen answers.
 
-### Refinements / polish
-- Add **English field-name labels** — ✅ done (German label + "(English)" in
-  brackets on the form fields).
-- **Übungsblatt** — ✅ resolved: not a graded Leistungsnachweis, so **no points,
-  no Note, no Notenschlüssel**; interactive shows "X von Y richtig" + praise.
-  Graded types keep points + Note. Driven by `paper.benotet` (set server-side).
-- **PDF Notenschlüssel → point ranges** — ✅ done (e.g. "1: 22–25 P"), shared via
-  `lib/noten.ts` across interactive/print/PDF.
-- Refine the **Prüfungsart names/labels** — wording still being tuned (open).
-
-### Going public / product (future)
-- **Make the URL public / available on the internet** — hosting + a domain
-  (extends the Vercel deploy item above).
-- **Monetization** — decide a business model (open).
-- **Free sample tests** — offer a few tests free, then paid (freemium; tied to
-  monetization).
+### Product / business (future)
+- **Monetization** — decide a business model.
+- **Free sample tests** — a few free, then paid (freemium; tied to monetization).
