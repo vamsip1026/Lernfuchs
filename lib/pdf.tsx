@@ -7,6 +7,7 @@ import {
   View,
 } from "@react-pdf/renderer";
 import { lehrwerkFuer } from "./curriculum";
+import { lueckenLoesungen } from "./luecken";
 import { notenschluesselText } from "./noten";
 import type { Aufgabe, TestPaper } from "./schema";
 
@@ -75,7 +76,7 @@ function QuestionView({
         ))
       ) : a.typ === "richtig_falsch" ? (
         <Text style={styles.option}>O Richtig O Falsch</Text>
-      ) : (
+      ) : lueckenLoesungen(a) ? null : (
         Array.from({ length: a.typ === "offen" ? 8 : 2 }).map((_, k) => (
           <View key={k} style={styles.line} />
         ))

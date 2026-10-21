@@ -97,6 +97,8 @@ function buildPrompt(req: GenerateRequest): string {
     `- Gib eine kurze, verständliche Erklärung des Lösungswegs.`,
     `- Vergib eine sinnvolle Punktzahl pro Aufgabe (bei einer Schulaufgabe insgesamt eine höhere Gesamtpunktzahl).`,
     ``,
+    `Lückentext (Typ "lueckentext"): Markiere jede Lücke im Aufgabentext mit genau "___" (drei Unterstriche). Jede Lücke nimmt genau ein Wort bzw. einen kurzen Ausdruck auf – bei zweiteiligen Formen (z. B. "ne ... jamais") zwei getrennte Lücken. Fülle "luecken" mit genau einem Eintrag pro Lücke in derselben Reihenfolge; jeder Eintrag listet alle akzeptierten Schreibweisen (z. B. ["n'", "ne"]). "loesung" enthält zusätzlich die vollständige Lösung als lesbaren Text. Bei mehreren Teilsätzen steht jeder Teilsatz in einer eigenen Zeile (Zeilenumbruch "\\n").`,
+    ``,
     `Lange, offene Aufgaben (Aufsatz, Erörterung, offene Sachaufgabe) als Typ "offen": Dort enthält "loesung" einen Erwartungshorizont bzw. eine Musterlösung und "erklaerung" die Bewertungskriterien.`,
     ``,
     `Gib außerdem eine passende empfohlene Bearbeitungszeit im Feld "bearbeitungszeit" an.`,

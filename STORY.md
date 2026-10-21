@@ -94,7 +94,15 @@ roll back to, with the secret API key kept safely out of the history. It then
 got an online home too — a **private GitHub repo** on a personal account — so
 there's an off-machine backup (and a base to deploy from later).
 
-## 15. What's next
+## 15. Fill in the blanks — for real
+The first real test run in interactive mode showed a gap: a Lückentext came
+with one big answer box, and the app couldn't tell right from wrong. Now **each
+blank gets its own little input right inside the sentence**, every blank is
+checked on its own (green ✓ or red with the correct word), and the task earns
+**partial points** — 6 of 8 blanks right gives 3 of 4 points. Small slips like
+`n’` vs `n'` or a capital letter don't count as mistakes.
+
+## 16. What's next
 Still on the list: a **public web address** so friends can use it too, a **more
 durable history** that isn't tied to a single browser, and product ideas like
 **monetization** and **free sample tests**.

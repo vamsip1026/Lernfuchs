@@ -2,6 +2,12 @@
 
 import { useMemo, useState } from "react";
 import { lehrwerkFuer } from "@/lib/curriculum";
+import {
+  frageTeile,
+  lueckeRichtig,
+  lueckenLoesungen,
+  normalize,
+} from "@/lib/luecken";
 import { noteFuerProzent, notenschluesselText } from "@/lib/noten";
 import type { Aufgabe, TestPaper } from "@/lib/schema";
 import { ermutigung, fachStil } from "@/lib/ui";
@@ -10,16 +16,16 @@ type Mode = "interaktiv" | "drucken";
 
 const BUCHSTABEN = ["A", "B", "C", "D", "E", "F"];
 
-/** Normalisiert eine Antwort für den Textvergleich (Freitext/Rechnen). */
-function normalize(s: string): string {
-  return s
-    .trim()
-    .toLowerCase()
-    .replace(/\s+/g, " ")
-    .replace(/[.,;:!?]+$/g, "");
-}
+/** Antwort: Text – bzw. bei Lückentexten ein Eintrag pro Lücke. */
+type Antwort = string | string[];
 
-type Grade = "correct" | "incorrect" | "review";
+type Grade = "correct" | "partial" | "incorrect" | "review";
+
+/** Wurde (mindestens teilweise) geantwortet? */
+function hatAntwort(antwort: Antwort | undefined): boolean {
+  if (Array.isArray(antwort)) return antwort.some((s) => s.trim() !== "");
+  return (antwort ?? "").trim() !== "";
+}
 
 /** Farbklassen für das Noten-Abzeichen (hell/dunkel). */
 function noteBadge(note: number): string {
@@ -30,18 +36,38 @@ function noteBadge(note: number): string {
   return "bg-red-50 text-red-700 ring-red-200 dark:bg-red-950 dark:text-red-300 dark:ring-red-800";
 }
 
-function gradeAnswer(a: Aufgabe, antwort: string | undefined): Grade {
+/** Bewertung einer Aufgabe inkl. erreichter Punkte (Teilpunkte bei Lücken). */
+function gradeAnswer(
+  a: Aufgabe,
+  antwort: Antwort | undefined,
+): { grade: Grade; punkte: number } {
   // Offene Aufgaben werden nicht automatisch bewertet.
-  if (a.typ === "offen") return "review";
-  if (antwort === undefined || antwort.trim() === "") return "incorrect";
+  if (a.typ === "offen") return { grade: "review", punkte: 0 };
+
+  // Lückentext: jede Lücke einzeln, anteilige Punkte (auf halbe Punkte gerundet).
+  const luecken = lueckenLoesungen(a);
+  if (luecken) {
+    const eingaben = Array.isArray(antwort) ? antwort : [];
+    const richtig = luecken.filter((l, k) => lueckeRichtig(eingaben[k], l)).length;
+    const punkte = Math.round(((a.punkte * richtig) / luecken.length) * 2) / 2;
+    const grade =
+      richtig === luecken.length ? "correct" : richtig > 0 ? "partial" : "incorrect";
+    return { grade, punkte };
+  }
+
+  const text = Array.isArray(antwort) ? antwort.join(" ") : (antwort ?? "");
+  if (text.trim() === "") return { grade: "incorrect", punkte: 0 };
+  const treffer = normalize(text) === normalize(a.loesung);
   if (a.typ === "multiple_choice" || a.typ === "richtig_falsch") {
-    return normalize(antwort) === normalize(a.loesung)
-      ? "correct"
-      : "incorrect";
+    return treffer
+      ? { grade: "correct", punkte: a.punkte }
+      : { grade: "incorrect", punkte: 0 };
   }
   // Freitext / Rechnen: exakter (normalisierter) Treffer zählt als richtig,
   // sonst zur Selbstkontrolle markieren.
-  return normalize(antwort) === normalize(a.loesung) ? "correct" : "review";
+  return treffer
+    ? { grade: "correct", punkte: a.punkte }
+    : { grade: "review", punkte: 0 };
 }
 
 export function TestView({
@@ -52,7 +78,7 @@ export function TestView({
   onReset: () => void;
 }) {
   const [mode, setMode] = useState<Mode>("interaktiv");
-  const [antworten, setAntworten] = useState<Record<number, string>>({});
+  const [antworten, setAntworten] = useState<Record<number, Antwort>>({});
   const [abgegeben, setAbgegeben] = useState(false);
   // Standard: ohne Lösungen – so kann das Blatt direkt dem Kind gegeben werden.
   const [loesungenDrucken, setLoesungenDrucken] = useState(false);
@@ -81,19 +107,19 @@ export function TestView({
     [paper.aufgaben],
   );
 
-  const beantwortet = paper.aufgaben.filter(
-    (_, i) => (antworten[i] ?? "").trim() !== "",
+  const beantwortet = paper.aufgaben.filter((_, i) =>
+    hatAntwort(antworten[i]),
   ).length;
   const fortschritt = paper.aufgaben.length
     ? Math.round((beantwortet / paper.aufgaben.length) * 100)
     : 0;
 
   const auswertung = useMemo(() => {
-    const grades = paper.aufgaben.map((a, i) => gradeAnswer(a, antworten[i]));
-    const erreicht = paper.aufgaben.reduce(
-      (s, a, i) => (grades[i] === "correct" ? s + a.punkte : s),
-      0,
+    const bewertungen = paper.aufgaben.map((a, i) =>
+      gradeAnswer(a, antworten[i]),
     );
+    const grades = bewertungen.map((b) => b.grade);
+    const erreicht = bewertungen.reduce((s, b) => s + b.punkte, 0);
     // Automatisch bewertbare Punkte = alles außer offenen Aufgaben.
     const autoPunkte = paper.aufgaben.reduce(
       (s, a) => (a.typ === "offen" ? s : s + a.punkte),
@@ -109,7 +135,7 @@ export function TestView({
     const prozentAnzahl =
       autoAnzahl > 0 ? Math.round((richtig / autoAnzahl) * 100) : null;
     return {
-      grades,
+      bewertungen,
       erreicht,
       autoPunkte,
       zuPruefen,
@@ -121,7 +147,7 @@ export function TestView({
     };
   }, [paper.aufgaben, antworten]);
 
-  function setAntwort(i: number, v: string) {
+  function setAntwort(i: number, v: Antwort) {
     setAntworten((prev) => ({ ...prev, [i]: v }));
   }
 
@@ -228,7 +254,7 @@ export function TestView({
           antworten={antworten}
           setAntwort={setAntwort}
           abgegeben={abgegeben}
-          grades={auswertung.grades}
+          bewertungen={auswertung.bewertungen}
           benotet={benotet}
         />
       ) : (
@@ -358,24 +384,25 @@ function InteractiveView({
   antworten,
   setAntwort,
   abgegeben,
-  grades,
+  bewertungen,
   benotet,
 }: {
   paper: TestPaper;
-  antworten: Record<number, string>;
-  setAntwort: (i: number, v: string) => void;
+  antworten: Record<number, Antwort>;
+  setAntwort: (i: number, v: Antwort) => void;
   abgegeben: boolean;
-  grades: Grade[];
+  bewertungen: { grade: Grade; punkte: number }[];
   benotet: boolean;
 }) {
   return (
     <ol className="space-y-5">
       {paper.aufgaben.map((a, i) => {
-        const grade = grades[i];
+        const { grade, punkte } = bewertungen[i];
+        const luecken = lueckenLoesungen(a);
         const ring = abgegeben
           ? grade === "correct"
             ? "ring-emerald-300 dark:ring-emerald-800"
-            : grade === "review"
+            : grade === "review" || grade === "partial"
               ? "ring-amber-300 dark:ring-amber-800"
               : "ring-red-300 dark:ring-red-800"
           : "ring-slate-200 dark:ring-slate-800";
@@ -385,37 +412,58 @@ function InteractiveView({
             className={`rounded-2xl bg-white p-5 shadow-sm ring-1 dark:bg-slate-900 ${ring}`}
           >
             <div className="flex items-start justify-between gap-3">
-              <p className="font-medium text-slate-900 dark:text-slate-100">
+              <div className="whitespace-pre-line font-medium leading-loose text-slate-900 dark:text-slate-100">
                 <span className="mr-2 text-slate-400 dark:text-slate-500">
                   {i + 1}.
                 </span>
-                {a.frage}
-              </p>
+                {luecken ? (
+                  // Lückentext: Eingabe direkt in jeder Lücke.
+                  <LueckenText
+                    frage={a.frage}
+                    luecken={luecken}
+                    value={Array.isArray(antworten[i]) ? antworten[i] : []}
+                    onChange={(v) => setAntwort(i, v)}
+                    abgegeben={abgegeben}
+                  />
+                ) : (
+                  a.frage
+                )}
+              </div>
               {benotet && (
                 <span className="shrink-0 rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-500 dark:bg-slate-800 dark:text-slate-400">
-                  {a.punkte} P
+                  {abgegeben && grade !== "review"
+                    ? `${punkte} / ${a.punkte} P`
+                    : `${a.punkte} P`}
                 </span>
               )}
             </div>
 
-            <div className="mt-3">
-              <AnswerInput
-                aufgabe={a}
-                index={i}
-                value={antworten[i]}
-                onChange={(v) => setAntwort(i, v)}
-                disabled={abgegeben}
-              />
-            </div>
+            {!luecken && (
+              <div className="mt-3">
+                <AnswerInput
+                  aufgabe={a}
+                  index={i}
+                  value={
+                    Array.isArray(antworten[i])
+                      ? antworten[i].join(" ")
+                      : antworten[i]
+                  }
+                  onChange={(v) => setAntwort(i, v)}
+                  disabled={abgegeben}
+                />
+              </div>
+            )}
 
             {abgegeben && (
               <div className="mt-3 rounded-lg bg-slate-50 p-3 text-sm dark:bg-slate-800/60">
                 <p className="font-semibold text-slate-700 dark:text-slate-200">
                   {grade === "correct"
                     ? "✅ Richtig"
-                    : grade === "review"
-                      ? "🔍 Selbst prüfen"
-                      : "❌ Nicht korrekt"}
+                    : grade === "partial"
+                      ? "🟡 Teilweise richtig"
+                      : grade === "review"
+                        ? "🔍 Selbst prüfen"
+                        : "❌ Nicht korrekt"}
                 </p>
                 <p className="mt-1 text-slate-700 dark:text-slate-200">
                   <span className="font-medium">
@@ -435,6 +483,71 @@ function InteractiveView({
         );
       })}
     </ol>
+  );
+}
+
+/** Aufgabentext mit kleinen Eingabefeldern an jeder Lücke. */
+function LueckenText({
+  frage,
+  luecken,
+  value,
+  onChange,
+  abgegeben,
+}: {
+  frage: string;
+  luecken: string[][];
+  value: string[];
+  onChange: (v: string[]) => void;
+  abgegeben: boolean;
+}) {
+  const teile = frageTeile(frage);
+  return (
+    <>
+      {teile.map((teil, k) => {
+        if (k === teile.length - 1) return <span key={k}>{teil}</span>;
+        const loesungen = luecken[k];
+        const richtig = lueckeRichtig(value[k], loesungen);
+        // Breite passend zur längsten Lösung (mind. 4 Zeichen).
+        const breite = Math.max(4, ...loesungen.map((l) => l.length)) + 2;
+        return (
+          <span key={k}>
+            {teil}
+            <span className="inline-flex items-baseline gap-1">
+              <input
+                type="text"
+                aria-label={`Lücke ${k + 1}`}
+                autoCapitalize="off"
+                autoCorrect="off"
+                spellCheck={false}
+                size={breite}
+                className={
+                  "mx-1 rounded-md border-b-2 bg-slate-50 px-1.5 py-0.5 text-center font-normal text-slate-900 focus:outline focus:outline-2 focus:outline-indigo-500 dark:bg-slate-800 dark:text-slate-100 " +
+                  (abgegeben
+                    ? richtig
+                      ? "border-emerald-500 bg-emerald-50 dark:bg-emerald-950"
+                      : "border-red-500 bg-red-50 dark:bg-red-950"
+                    : "border-slate-400 dark:border-slate-500")
+                }
+                value={value[k] ?? ""}
+                onChange={(e) => {
+                  const neu = [...value];
+                  // Lücken davor auffüllen, damit Indizes stimmen.
+                  for (let j = 0; j < teile.length - 1; j++) neu[j] ??= "";
+                  neu[k] = e.target.value;
+                  onChange(neu);
+                }}
+                disabled={abgegeben}
+              />
+              {abgegeben && !richtig && (
+                <span className="text-sm font-semibold text-emerald-700 dark:text-emerald-400">
+                  → {loesungen[0]}
+                </span>
+              )}
+            </span>
+          </span>
+        );
+      })}
+    </>
   );
 }
 
@@ -552,7 +665,7 @@ function PrintView({
         {paper.aufgaben.map((a, i) => (
           <li key={i} className="avoid-break">
             <div className="flex items-start justify-between gap-3">
-              <p className="font-medium text-slate-900 dark:text-slate-100">
+              <p className="whitespace-pre-line font-medium leading-loose text-slate-900 dark:text-slate-100">
                 <span className="mr-2 text-slate-400">{i + 1}.</span>
                 {a.frage}
               </p>
@@ -577,9 +690,9 @@ function PrintView({
               <p className="mt-2 pl-6 text-slate-600 dark:text-slate-300">
                 ◯ Richtig ◯ Falsch
               </p>
-            ) : (
+            ) : lueckenLoesungen(a) ? null : (
               // Platz zum handschriftlichen Lösen – offene Aufgaben bekommen
-              // mehr Zeilen.
+              // mehr Zeilen. Lückentexte werden direkt in den Lücken gelöst.
               <div className="mt-2 space-y-4 pl-6">
                 {Array.from({ length: a.typ === "offen" ? 8 : 2 }).map(
                   (_, k) => (

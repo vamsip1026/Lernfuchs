@@ -30,6 +30,14 @@ export const AufgabeSchema = z.object({
   // Die korrekte Lösung. Bei multiple_choice exakt der Text der richtigen Option.
   // Bei richtig_falsch 'Richtig' oder 'Falsch'.
   loesung: z.string().describe("Die korrekte Lösung / Musterlösung"),
+  // Nur bei lueckentext: pro Lücke ("___" im Aufgabentext, in Reihenfolge)
+  // die akzeptierten Lösungen. Ermöglicht Eingabe direkt in der Lücke und
+  // Bewertung je Lücke.
+  luecken: z
+    .array(z.array(z.string()))
+    .describe(
+      'Nur bei lueckentext: für jede Lücke "___" im Aufgabentext (in Reihenfolge) ein Array der akzeptierten Lösungen, z. B. [["ne"], ["jamais"]]. Sonst leeres Array.',
+    ),
   erklaerung: z
     .string()
     .describe("Kurze Erklärung des Lösungswegs (1-3 Sätze)"),
