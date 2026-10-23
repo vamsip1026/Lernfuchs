@@ -102,7 +102,16 @@ checked on its own (green ✓ or red with the correct word), and the task earns
 **partial points** — 6 of 8 blanks right gives 3 of 4 points. Small slips like
 `n’` vs `n'` or a capital letter don't count as mistakes.
 
-## 16. What's next
+## 16. AI grades free-text answers
+Before this, translation and essay answers showed "Selbst prüfen" (self-check only)
+and scored 0 points, making the final grade misleading. Now **Claude scores each
+free-text answer** (0%, 50%, or 100% for partial/full points) against the
+Erwartungshorizont, and gives a 1–2-sentence German hint about what was wrong or
+what could be better. The result screen shows **"vorläufig"** (preliminary) while
+grading happens in the background, then updates as answers are scored. If grading
+fails (timeout, API down), it falls back to "Selbst prüfen".
+
+## 17. What's next
 Still on the list: a **public web address** so friends can use it too, a **more
 durable history** that isn't tied to a single browser, and product ideas like
 **monetization** and **free sample tests**.

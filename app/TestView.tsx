@@ -562,7 +562,17 @@ function InteractiveView({
                 {a.typ !== "offen" && (
                   <>
                     <p className="mt-1 text-slate-700 dark:text-slate-200">
-                      <span className="font-medium">Lösung:</span> {a.loesung}
+                      <span className="font-medium">Lösung:</span>{" "}
+                      {a.typ === "multiple_choice" && a.optionen.length > 0
+                        ? (() => {
+                            const idx = a.optionen.findIndex(
+                              (o) => normalize(o) === normalize(a.loesung),
+                            );
+                            return idx >= 0
+                              ? `${BUCHSTABEN[idx]}) ${a.loesung}`
+                              : a.loesung;
+                          })()
+                        : a.loesung}
                     </p>
                     <p className="mt-1 text-slate-500 dark:text-slate-400">
                       {a.erklaerung}

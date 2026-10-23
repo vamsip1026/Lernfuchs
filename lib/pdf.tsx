@@ -7,7 +7,7 @@ import {
   View,
 } from "@react-pdf/renderer";
 import { lehrwerkFuer } from "./curriculum";
-import { lueckenLoesungen } from "./luecken";
+import { lueckenLoesungen, normalize } from "./luecken";
 import { notenschluesselText } from "./noten";
 import type { Aufgabe, TestPaper } from "./schema";
 
@@ -130,7 +130,16 @@ function TestDocument({
             <View key={i} style={styles.solItem} wrap={false}>
               <Text>
                 <Text style={styles.bold}>
-                  {i + 1}. {a.loesung}
+                  {i + 1}. {a.typ === "multiple_choice" && a.optionen.length > 0
+                    ? (() => {
+                        const idx = a.optionen.findIndex(
+                          (o) => normalize(o) === normalize(a.loesung),
+                        );
+                        return idx >= 0
+                          ? `${BUCH[idx]}) ${a.loesung}`
+                          : a.loesung;
+                      })()
+                    : a.loesung}
                 </Text>
               </Text>
               <Text style={styles.grau}>{a.erklaerung}</Text>
