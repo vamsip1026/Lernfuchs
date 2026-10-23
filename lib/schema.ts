@@ -101,3 +101,39 @@ export const SubtopicResultSchema = z.object({
     .array(z.string())
     .describe("6–8 konkrete, übbare Teilaspekte des Themas"),
 });
+
+/** Eine offene Aufgabe zur Bewertung (Schulserver an Claude). */
+export const AnswerToGradeSchema = z.object({
+  aufgabeIndex: z.number().int().describe("Index der Aufgabe im Test"),
+  antwort: z.string().describe("Antwort des Schülers"),
+  loesung: z.string().describe("Erwartungshorizont / Musterlösung"),
+  erklaerung: z.string().describe("Bewertungskriterien"),
+  punkte: z.number().int().describe("Maximale Punktzahl"),
+});
+
+export type AnswerToGrade = z.infer<typeof AnswerToGradeSchema>;
+
+/** Anfrage zum Bewerten offener Antworten. */
+export const GradeRequestSchema = z.object({
+  answers: z.array(AnswerToGradeSchema),
+});
+
+export type GradeRequest = z.infer<typeof GradeRequestSchema>;
+
+/** Bewertung einer offenen Antwort. */
+export const GradeResultSchema = z.object({
+  aufgabeIndex: z.number().int(),
+  punkte: z.number().int().describe("Erreichte Punkte (0, Hälfte oder voll)"),
+  feedback: z
+    .string()
+    .describe(
+      "Kurze deutsche Rückmeldung (1-2 Sätze): was war richtig/falsch oder was könnte besser sein",
+    ),
+});
+
+export type GradeResult = z.infer<typeof GradeResultSchema>;
+
+/** Antwort vom Bewertungs-Endpoint. */
+export const GradeResponseSchema = z.object({
+  results: z.array(GradeResultSchema),
+});

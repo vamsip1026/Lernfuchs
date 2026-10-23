@@ -2,12 +2,15 @@ import Anthropic from "@anthropic-ai/sdk";
 import { betaZodOutputFormat } from "@anthropic-ai/sdk/helpers/beta/zod";
 import { AUFGABENFORMATE, lehrwerkFuer, PRUEFUNGSARTEN } from "./curriculum";
 import {
+  type AnswerToGrade,
   type GenerateRequest,
+  type GradeResult,
   type Inhalt,
   type SubtopicRequest,
   SubtopicResultSchema,
   type TestPaper,
   TestPaperSchema,
+  GradeResponseSchema,
 } from "./schema";
 
 // Standardmodell. Günstigere Alternative für diesen Anwendungsfall:
@@ -160,4 +163,71 @@ export async function suggestSubtopics(
   });
 
   return response.parsed_output?.unterthemen ?? [];
+}
+
+/** Bewertet offene (lange) Aufgaben: Antwort gegen Erwartungshorizont. */
+export async function gradeAnswers(
+  answers: AnswerToGrade[],
+): Promise<GradeResult[]> {
+  if (answers.length === 0) return [];
+
+  const client = getClient();
+
+  const answerTexts = answers
+    .map(
+      (a, i) =>
+        `\n--- Aufgabe ${i + 1} (${a.punkte} P) ---\n` +
+        `Schülerantwort:\n${a.antwort}\n\n` +
+        `Erwartungshorizont / Musterlösung:\n${a.loesung}\n\n` +
+        `Bewertungskriterien:\n${a.erklaerung}`,
+    )
+    .join("\n");
+
+  const prompt = [
+    `Du bist ein strenger, aber fairer Deutschlehrer, der freie Antworten von Schülern bewertet.`,
+    `Bewerte die folgenden Schülerantworten anhand des Erwartungshorizonts und der Bewertungskriterien.`,
+    ``,
+    `Für jede Antwort vergib:`,
+    `- Volle Punktzahl (100 %), wenn die Antwort korrekt und vollständig ist`,
+    `- Halbe Punktzahl (50 %), wenn die Antwort teilweise richtig, aber mit Fehlern oder unvollständig ist`,
+    `- 0 Punkte (0 %), wenn die Antwort falsch, nicht sinnvoll oder zu ungenau ist`,
+    ``,
+    `Gib für jede Antwort eine kurze Rückmeldung auf Deutsch (1–2 Sätze):`,
+    `- Bei korrekter Antwort: kurze Bestätigung`,
+    `- Bei Fehler: kurz erklären, was war falsch oder wie könnte es besser sein`,
+    ``,
+    answerTexts,
+    ``,
+    `Antworte strukturiert als JSON mit Punkten (ganzzahl) und Feedback.`,
+  ].join("\n");
+
+  const response = await client.beta.messages.parse({
+    model: MODEL,
+    max_tokens: 2000,
+    messages: [{ role: "user", content: prompt }],
+    output_format: betaZodOutputFormat(GradeResponseSchema),
+  });
+
+  const graded = response.parsed_output?.results ?? [];
+
+  // Stelle sicher, dass jede Aufgabe ein Ergebnis hat, sonst fallback auf 0 Punkte.
+  return answers.map((a, i) => {
+    const result = graded.find((r) => r.aufgabeIndex === i);
+    if (!result) {
+      return {
+        aufgabeIndex: i,
+        punkte: 0,
+        feedback: "Bewertung fehlgeschlagen.",
+      };
+    }
+    // Punkte auf 0, 50%, 100% der Maximalpunktzahl normalisieren
+    // (Claude könnte 50 geben, wir brauchen aber 50% von a.punkte)
+    const pct = Math.min(100, Math.max(0, result.punkte));
+    const final = Math.round((a.punkte * pct) / 100);
+    return {
+      aufgabeIndex: i,
+      punkte: final,
+      feedback: result.feedback,
+    };
+  });
 }

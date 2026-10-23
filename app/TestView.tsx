@@ -21,6 +21,13 @@ type Antwort = string | string[];
 
 type Grade = "correct" | "partial" | "incorrect" | "review";
 
+/** Bewertung einer offenen Antwort von der API. */
+interface GradedAnswer {
+  aufgabeIndex: number;
+  punkte: number;
+  feedback: string;
+}
+
 /** Wurde (mindestens teilweise) geantwortet? */
 function hatAntwort(antwort: Antwort | undefined): boolean {
   if (Array.isArray(antwort)) return antwort.some((s) => s.trim() !== "");
@@ -83,6 +90,11 @@ export function TestView({
   // Standard: ohne Lösungen – so kann das Blatt direkt dem Kind gegeben werden.
   const [loesungenDrucken, setLoesungenDrucken] = useState(false);
   const [pdfLaedt, setPdfLaedt] = useState(false);
+  // Bewertungen offener Antworten (von der API).
+  const [gradedAnswers, setGradedAnswers] = useState<Record<number, GradedAnswer> | null>(
+    null,
+  );
+  const [gradingError, setGradingError] = useState<string | null>(null);
 
   const stil = fachStil(paper.fach);
   const lehrwerk = lehrwerkFuer(paper.klasse, paper.fach);
@@ -115,19 +127,22 @@ export function TestView({
     : 0;
 
   const auswertung = useMemo(() => {
-    const bewertungen = paper.aufgaben.map((a, i) =>
-      gradeAnswer(a, antworten[i]),
-    );
+    const bewertungen = paper.aufgaben.map((a, i) => {
+      // Nutze API-Bewertung falls vorhanden (offene Aufgaben).
+      if (a.typ === "offen" && gradedAnswers && i in gradedAnswers) {
+        const graded = gradedAnswers[i];
+        return { grade: "correct" as Grade, punkte: graded.punkte };
+      }
+      return gradeAnswer(a, antworten[i]);
+    });
     const grades = bewertungen.map((b) => b.grade);
     const erreicht = bewertungen.reduce((s, b) => s + b.punkte, 0);
-    // Automatisch bewertbare Punkte = alles außer offenen Aufgaben.
-    const autoPunkte = paper.aufgaben.reduce(
-      (s, a) => (a.typ === "offen" ? s : s + a.punkte),
-      0,
-    );
+
+    // Alle Punkte zählen (auch die von API bewerteten offenen Aufgaben).
+    const autoPunkte = paper.aufgaben.reduce((s, a) => s + a.punkte, 0);
     const zuPruefen = grades.filter((g) => g === "review").length;
     const richtig = grades.filter((g) => g === "correct").length;
-    const autoAnzahl = paper.aufgaben.filter((a) => a.typ !== "offen").length;
+    const autoAnzahl = paper.aufgaben.length;
     const prozent =
       autoPunkte > 0 ? Math.round((erreicht / autoPunkte) * 100) : null;
     const note = prozent === null ? null : noteFuerProzent(prozent);
@@ -145,10 +160,62 @@ export function TestView({
       prozentAnzahl,
       note,
     };
-  }, [paper.aufgaben, antworten]);
+  }, [paper.aufgaben, antworten, gradedAnswers]);
 
   function setAntwort(i: number, v: Antwort) {
     setAntworten((prev) => ({ ...prev, [i]: v }));
+  }
+
+  async function gradeOpenAnswers() {
+    // Sammle alle offenen Aufgaben mit Antworten.
+    const toGrade = paper.aufgaben
+      .map((a, i) => ({
+        aufgabeIndex: i,
+        aufgabe: a,
+        antwort: antworten[i],
+      }))
+      .filter(
+        (x): x is { aufgabeIndex: number; aufgabe: typeof x.aufgabe; antwort: string } =>
+          x.aufgabe.typ === "offen" &&
+          typeof x.antwort === "string" &&
+          x.antwort.trim() !== "",
+      );
+
+    if (toGrade.length === 0) return;
+
+    try {
+      const response = await fetch("/api/grade", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          answers: toGrade.map((x) => ({
+            aufgabeIndex: x.aufgabeIndex,
+            antwort: x.antwort,
+            loesung: x.aufgabe.loesung,
+            erklaerung: x.aufgabe.erklaerung,
+            punkte: x.aufgabe.punkte,
+          })),
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `HTTP ${response.status}`);
+      }
+
+      const data = await response.json();
+      const resultMap = (data.results as Array<{ aufgabeIndex: number; punkte: number; feedback: string }>).reduce(
+        (acc, r) => ({ ...acc, [r.aufgabeIndex]: r }),
+        {} as Record<number, GradedAnswer>,
+      );
+      setGradedAnswers(resultMap);
+      setGradingError(null);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Bewertung fehlgeschlagen";
+      setGradingError(msg);
+      console.error("Grading error:", err);
+      // Fallback: Bewertungen auf "Selbst prüfen" setzen, Fehler anzeigen.
+    }
   }
 
   return (
@@ -256,6 +323,7 @@ export function TestView({
           abgegeben={abgegeben}
           bewertungen={auswertung.bewertungen}
           benotet={benotet}
+          gradedAnswers={gradedAnswers}
         />
       ) : (
         <PrintView
@@ -270,7 +338,10 @@ export function TestView({
         <div className="no-print mt-8">
           {!abgegeben ? (
             <button
-              onClick={() => setAbgegeben(true)}
+              onClick={async () => {
+                setAbgegeben(true);
+                await gradeOpenAnswers();
+              }}
               className="w-full rounded-xl bg-emerald-600 px-4 py-3 font-semibold text-white shadow-md transition hover:bg-emerald-700 active:scale-[0.99]"
             >
               Abgeben & auswerten
@@ -296,12 +367,23 @@ export function TestView({
                       <p className="mt-1 text-slate-600 dark:text-slate-300">
                         Note {auswertung.note.note} ({auswertung.note.label}) ·{" "}
                         {auswertung.prozent} %
+                        {gradedAnswers && (
+                          <span className="ml-2 text-xs text-slate-400">(vorläufig)</span>
+                        )}
                       </p>
                     </>
                   )}
+                  {!auswertung.note && gradedAnswers === null && (
+                    <p className="text-sm text-slate-600 dark:text-slate-300">
+                      wird bewertet…
+                    </p>
+                  )}
                   <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
                     {auswertung.erreicht} / {auswertung.autoPunkte} Punkte
-                    (automatisch bewertet)
+                    {gradedAnswers === null &&
+                      paper.aufgaben.some((a) => a.typ === "offen")
+                      ? " (teilweise automatisch bewertet)"
+                      : " (automatisch bewertet)"}
                   </p>
                 </>
               ) : (
@@ -316,10 +398,14 @@ export function TestView({
                   )}
                 </>
               )}
-              {auswertung.zuPruefen > 0 && (
+              {gradingError && (
+                <p className="mt-2 text-sm text-red-600 dark:text-red-400">
+                  ⚠️ Bewertung nicht möglich: {gradingError}
+                </p>
+              )}
+              {auswertung.zuPruefen > 0 && !gradedAnswers && (
                 <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                  {auswertung.zuPruefen} offene Antwort(en) bitte selbst mit der
-                  Musterlösung / dem Erwartungshorizont vergleichen.
+                  {auswertung.zuPruefen} offene Antwort(en) werden bewertet…
                 </p>
               )}
               {benotet && (
@@ -386,6 +472,7 @@ function InteractiveView({
   abgegeben,
   bewertungen,
   benotet,
+  gradedAnswers,
 }: {
   paper: TestPaper;
   antworten: Record<number, Antwort>;
@@ -393,6 +480,7 @@ function InteractiveView({
   abgegeben: boolean;
   bewertungen: { grade: Grade; punkte: number }[];
   benotet: boolean;
+  gradedAnswers: Record<number, GradedAnswer> | null;
 }) {
   return (
     <ol className="space-y-5">
@@ -465,18 +553,34 @@ function InteractiveView({
                         ? "🔍 Selbst prüfen"
                         : "❌ Nicht korrekt"}
                 </p>
-                <p className="mt-1 text-slate-700 dark:text-slate-200">
-                  <span className="font-medium">
-                    {a.typ === "offen" ? "Erwartungshorizont:" : "Lösung:"}
-                  </span>{" "}
-                  {a.loesung}
-                </p>
-                <p className="mt-1 text-slate-500 dark:text-slate-400">
-                  {a.typ === "offen" && (
-                    <span className="font-medium">Bewertungskriterien: </span>
-                  )}
-                  {a.erklaerung}
-                </p>
+                {/* Feedback von Claude-Bewertung für offene Aufgaben. */}
+                {a.typ === "offen" && gradedAnswers && i in gradedAnswers && (
+                  <p className="mt-1 text-emerald-700 dark:text-emerald-300">
+                    {gradedAnswers[i].feedback}
+                  </p>
+                )}
+                {a.typ !== "offen" && (
+                  <>
+                    <p className="mt-1 text-slate-700 dark:text-slate-200">
+                      <span className="font-medium">Lösung:</span> {a.loesung}
+                    </p>
+                    <p className="mt-1 text-slate-500 dark:text-slate-400">
+                      {a.erklaerung}
+                    </p>
+                  </>
+                )}
+                {a.typ === "offen" && !gradedAnswers && (
+                  <>
+                    <p className="mt-1 text-slate-700 dark:text-slate-200">
+                      <span className="font-medium">Erwartungshorizont:</span>{" "}
+                      {a.loesung}
+                    </p>
+                    <p className="mt-1 text-slate-500 dark:text-slate-400">
+                      <span className="font-medium">Bewertungskriterien: </span>
+                      {a.erklaerung}
+                    </p>
+                  </>
+                )}
               </div>
             )}
           </li>
