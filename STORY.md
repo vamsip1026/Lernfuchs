@@ -111,7 +111,23 @@ what could be better. The result screen shows **"vorläufig"** (preliminary) whi
 grading happens in the background, then updates as answers are scored. If grading
 fails (timeout, API down), it falls back to "Selbst prüfen".
 
-## 17. What's next
+## 17. Quality fixes from real testing
+After your son took a few tests, three issues emerged:
+
+**Multiple choice always had A as correct:** Without explicit instructions, Claude 
+naturally gravitated to putting the right answer in the first position. Now the 
+prompt says to **distribute correct answers equally across all positions** (A, B, C, D).
+
+**Solution feedback missing the option letter:** When marking an answer wrong, 
+students saw "Lösung: the correct text" but not which letter it was. Now it shows 
+**"Lösung: B) the correct text"** (computed by finding which option matches).
+
+**Chemistry numbers lost their minus signs:** Oxidation states became wrong 
+("-2" → "2"), and ion charges/temperatures lost their signs. The prompt now 
+explicitly instructs Claude to **preserve minus signs and use proper chemical notation**
+(Cl⁻, Ca²⁺, -114 kJ/mol, etc.).
+
+## 18. What's next
 Still on the list: a **public web address** so friends can use it too, a **more
 durable history** that isn't tied to a single browser, and product ideas like
 **monetization** and **free sample tests**.
