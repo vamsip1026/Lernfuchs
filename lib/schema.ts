@@ -105,6 +105,7 @@ export const SubtopicResultSchema = z.object({
 /** Eine offene Aufgabe zur Bewertung (Schulserver an Claude). */
 export const AnswerToGradeSchema = z.object({
   aufgabeIndex: z.number().int().describe("Index der Aufgabe im Test"),
+  frage: z.string().optional().describe("Aufgabentext"),
   antwort: z.string().describe("Antwort des Schülers"),
   loesung: z.string().describe("Erwartungshorizont / Musterlösung"),
   erklaerung: z.string().describe("Bewertungskriterien"),

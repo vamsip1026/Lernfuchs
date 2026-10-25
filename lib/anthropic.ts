@@ -1,6 +1,12 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { betaZodOutputFormat } from "@anthropic-ai/sdk/helpers/beta/zod";
-import { AUFGABENFORMATE, lehrwerkFuer, PRUEFUNGSARTEN } from "./curriculum";
+import {
+  AUFGABENFORMATE,
+  lehrplanFuer,
+  lehrwerkFuer,
+  PRUEFUNGSARTEN,
+  unterthemenFuer,
+} from "./curriculum";
 import {
   type AnswerToGrade,
   type GenerateRequest,
@@ -16,7 +22,7 @@ import {
 // Standardmodell. Günstigere Alternative für diesen Anwendungsfall:
 // claude-sonnet-5-5 (ca. 5x günstiger, für Schulaufgaben völlig ausreichend).
 // Über die Umgebungsvariable ANTHROPIC_MODEL überschreibbar.
-const MODEL = process.env.ANTHROPIC_MODEL ?? "claude-opus-5-5";
+const MODEL = process.env.ANTHROPIC_MODEL ?? "claude-sonnet-5-5";
 
 /** Lazily instanziierter Client – liest ANTHROPIC_API_KEY aus der Umgebung. */
 function getClient(): Anthropic {
@@ -69,6 +75,13 @@ function inhalteBlock(inhalte: Inhalt[]): string {
 function buildPrompt(req: GenerateRequest): string {
   const art = pruefungsart(req.pruefungsart);
   const lehrwerk = lehrwerkFuer(req.klasse, req.fach);
+  const rahmen = req.inhalte
+    .map((i) => {
+      const text = lehrplanFuer(req.klasse, req.fach, i.thema);
+      return text ? `- ${i.thema}: ${text}` : "";
+    })
+    .filter(Boolean)
+    .join("\n");
 
   return [
     `Erstelle einen Test für einen Schüler am Gymnasium in Bayern.`,
@@ -83,7 +96,8 @@ function buildPrompt(req: GenerateRequest): string {
     ``,
     `Zu behandelnde Inhalte:`,
     inhalteBlock(req.inhalte),
-    `Verteile die Aufgaben sinnvoll über alle genannten Inhalte. Bei "nur die Teilaspekte" bleibe strikt bei diesen Teilaspekten. Bei einer Schulaufgabe müssen alle genannten Inhalte vorkommen. Der Titel ("titel") soll den Umfang widerspiegeln.`,
+    `Verteile die Aufgaben sinnvoll über alle genannten Inhalte. Bei "nur die Teilaspekte" gilt: Die genannte Überschrift ist der GESAMTE Stoffumfang. Stelle nur Aufgaben, die mit den Begriffen, Größen und Formeln lösbar sind, die genau in diesem Abschnitt des Lehrwerks eingeführt werden. Verwende keine Begriffe, Formeln oder Rechenwege aus späteren Abschnitten oder Nachbarthemen (z. B. keine Ladung Q oder Q = I · t bei "Stromstärke", wenn dies nicht ausdrücklich dazugehört) und keine Zusatzgrößen, die nicht in der Aufgabe erklärt sind. Im Zweifel wähle die einfachere, grundlegende Aufgabe auf dem Niveau dieses einen Abschnitts. Bei einer Schulaufgabe müssen alle genannten Inhalte vorkommen. Der Titel ("titel") soll den Umfang widerspiegeln.`,
+    ...(rahmen ? [``, `Verbindlicher Stoffrahmen laut LehrplanPLUS (Obergrenze – nichts darüber hinaus abfragen):`, rahmen] : []),
     ...(lehrwerk
       ? [
           `- Verwendetes Schulbuch: ${lehrwerk}. Orientiere dich bei Begriffen, Schreibweisen, Reihenfolge und Schwerpunkten an diesem Lehrwerk.`,
@@ -106,6 +120,8 @@ function buildPrompt(req: GenerateRequest): string {
     `- Oxidationszahlen immer mit Vorzeichen: z. B. -2, +3, -1.`,
     `- Negative Temperaturen und Werte mit Minuszeichen: z. B. -273 °C, -114 kJ/mol.`,
     `- Halte dich an die Notation des Lehrbuchs "Galvani".`,
+    ``,
+    `WICHTIG: Enthält der Aufgabentext Lücken "___" (auch bei Umrechnungen wie "250 mA = ___ A" oder Teilaufgaben a), b)), dann MUSS der Typ "lueckentext" sein und "luecken" muss für jede Lücke die akzeptierten Zahlen/Wörter enthalten (nur Zahl bzw. Wort, ohne Einheit, z. B. ["0,25", "0.25"]). Verwende "___" niemals in anderen Aufgabentypen.`,
     ``,
     `Lückentext (Typ "lueckentext"): Markiere jede Lücke im Aufgabentext mit genau "___" (drei Unterstriche). Jede Lücke nimmt genau ein Wort bzw. einen kurzen Ausdruck auf – bei zweiteiligen Formen (z. B. "ne ... jamais") zwei getrennte Lücken. Fülle "luecken" mit genau einem Eintrag pro Lücke in derselben Reihenfolge; jeder Eintrag listet alle akzeptierten Schreibweisen (z. B. ["n'", "ne"]). "loesung" enthält zusätzlich die vollständige Lösung als lesbaren Text. Bei mehreren Teilsätzen steht jeder Teilsatz in einer eigenen Zeile (Zeilenumbruch "\\n").`,
     ``,
@@ -151,6 +167,10 @@ export async function suggestSubtopics(
 ): Promise<string[]> {
   const client = getClient();
   const lehrwerk = lehrwerkFuer(req.klasse, req.fach);
+  const kuratiert = unterthemenFuer(req.klasse, req.fach, req.thema);
+
+  // Kuratierte Liste vorhanden → direkt verwenden, keine freie Erfindung.
+  if (kuratiert.length > 0) return kuratiert;
 
   const prompt = [
     `Nenne 6 bis 8 konkrete, übbare Teilaspekte (Unterthemen) zum Thema "${req.thema}"`,
@@ -184,6 +204,7 @@ export async function gradeAnswers(
     .map(
       (a, i) =>
         `\n--- Aufgabe ${i + 1} (${a.punkte} P) ---\n` +
+        (a.frage ? `Aufgabe:\n${a.frage}\n\n` : "") +
         `Schülerantwort:\n${a.antwort}\n\n` +
         `Erwartungshorizont / Musterlösung:\n${a.loesung}\n\n` +
         `Bewertungskriterien:\n${a.erklaerung}`,
@@ -191,8 +212,9 @@ export async function gradeAnswers(
     .join("\n");
 
   const prompt = [
-    `Du bist ein strenger, aber fairer Deutschlehrer, der freie Antworten von Schülern bewertet.`,
+    `Du bist ein strenger, aber fairer Lehrer, der freie Antworten von Schülern bewertet.`,
     `Bewerte die folgenden Schülerantworten anhand des Erwartungshorizonts und der Bewertungskriterien.`,
+    `Bei Rechen- und Kurzantworten zählt das fachliche Ergebnis: andere Schreibweisen (0,25 A = 0,250 A = 250 mA, fehlende Leerzeichen, Komma/Punkt, Rechenweg statt nur Ergebnis) sind voll richtig. Bei mehreren Teilaufgaben (a, b, …) vergib anteilige Punkte.`,
     ``,
     `Für jede Antwort vergib eine Punktzahl von 0–100 % in 10-%-Schritten (0, 10, 20, ... 90, 100):`,
     `- 90–100 %: vollständig korrekt und vollständig`,
@@ -232,7 +254,7 @@ export async function gradeAnswers(
     // Punkte als Prozent (0-100) auf die tatsächliche Punktzahl normalisieren
     // (Claude gibt z.B. 70, wir berechnen 70% von a.punkte)
     const pct = Math.min(100, Math.max(0, result.punkte));
-    const final = Math.round((a.punkte * pct) / 100);
+    const final = Math.round(((a.punkte * pct) / 100) * 2) / 2;
     return {
       aufgabeIndex: i,
       punkte: final,

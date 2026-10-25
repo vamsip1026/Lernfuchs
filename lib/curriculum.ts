@@ -635,6 +635,91 @@ export const LEHRWERKE: Record<string, string> = {
   "Religion / Ethik": "Abenteuer Ethik",
 };
 
+// Kuratierte Unterthemen je Thema (Schlüssel: "Klasse|Fach|Thema"). Sie dienen
+// den Unterthemen-Vorschlägen als verbindliche Grundlage statt freier Erfindung.
+// Klasse 8 Physik: Kapitel laut Inhaltsverzeichnis Dorn-Bader. Klasse 9: ENTWURF
+// aus dem LehrplanPLUS – noch mit dem Schulbuch abgleichen.
+const UNTERTHEMEN: Record<string, string[]> = {
+  "8|Physik|Elektrischer Strom": [
+    "Die elektrische Stromstärke",
+    "Elektrischer Strom braucht einen Antrieb (Spannung)",
+    "Der elektrische Widerstand",
+    "Kennlinien und ohmsche Widerstände",
+    "Reihen- und Parallelschaltung",
+    "Elektrische Schaltungen und Sicherheit im Haushalt",
+  ],
+  "8|Physik|Optik": [
+    "Ein Gesetz für Spiegel (Reflexionsgesetz)",
+    "Lichtbrechung und Totalreflexion",
+    "Linsen machen Bilder",
+    "Das Auge, ein optisches System",
+  ],
+  "9|Physik|Energie als Erhaltungsgröße (mechanisch, elektrisch)": [
+    "Energieformen und Energieumwandlungen",
+    "Energieerhaltung und Energieentwertung",
+    "Höhenenergie und Spannenergie",
+    "Bewegungsenergie",
+    "Mechanische Arbeit und Leistung",
+    "Wirkungsgrad",
+    "Elektrische Energie und Leistung (P = U · I)",
+    "Energiebilanz im Stromkreis",
+  ],
+  "9|Physik|Atome": [
+    "Atommodell nach Rutherford (Kern und Hülle)",
+    "Aufbau des Atoms: Protonen, Neutronen, Elektronen",
+    "Elektrische Ladung und Ladungstrennung",
+    "Elementarladung",
+    "Elektrische Leitungsvorgänge (Metalle, Ionen)",
+  ],
+  "9|Physik|Wärmelehre (Teilchenmodell)": [
+    "Teilchenmodell und Aggregatzustände",
+    "Temperatur und innere Energie",
+    "Thermische Ausdehnung",
+    "Absolute Temperatur (Kelvin)",
+    "Wärmekapazität und Wärmemenge",
+    "Schmelzen, Verdampfen, Umwandlungswärme",
+    "Mischungsversuche",
+  ],
+  "9|Physik|Thermischer Energietransport und Klima": [
+    "Wärmeleitung",
+    "Konvektion",
+    "Wärmestrahlung",
+    "Wärmedämmung",
+    "Treibhauseffekt und Klima",
+  ],
+};
+
+// Verbindlicher Stoffrahmen je Thema aus dem LehrplanPLUS Bayern (Gymnasium),
+// Schlüssel wie bei UNTERTHEMEN. Wird dem Prompt als Obergrenze mitgegeben.
+const LEHRPLAN: Record<string, string> = {
+  "8|Physik|Elektrischer Strom":
+    "Stromkreismodell (mit Modellgrenzen), Stromstärke, Stromrichtung, Spannung als Antrieb, Gleich- und Wechselstrom; Kennlinien eines ohmschen und eines nicht-ohmschen Widerstands (messen, protokollieren, Gefahren des Stroms beachten); Widerstand, Leiter, Isolator, Kurzschluss; Definitionsgleichung des elektrischen Widerstands in einfachen Stromkreisen (auf Einheiten und Messgenauigkeit achten); Reihen- und Parallelschaltung mit höchstens drei Widerständen (Stromstärken und Spannungen untersuchen); einfache Haushaltsinstallation und Sicherheit. NICHT Teil des Lehrplans: elektrische Ladung/Coulomb und Q = I · t.",
+  Optik:
+    "Lichtausbreitung (einfaches Modell), Reflexionsgesetz, Bildentstehung am Spiegel, virtuelles Bild; Brechung (halbquantitativ, kein Rechnen mit dem Brechungsgesetz); Abbildung durch eine Sammellinse, reelle und virtuelle Bilder (halbquantitative Aussagen, Zeichnungen); Auge und Fehlsichtigkeit, Zerstreuungslinsen; Totalreflexion und technische Anwendungen, Lichtleiter; Risiken im Umgang mit Lichtquellen (z. B. Laserpointer).",
+  "Mechanik: Dynamik zweidimensionaler Bewegungen":
+    "Betrag der Geschwindigkeit und Definitionsgleichung (abschätzen, bestimmen, einfach berechnen, Einheiten); Geschwindigkeitspfeil bei zweidimensionalen Bewegungen (Stroboskopbilder, Videos); Geschwindigkeitsänderung durch Krafteinwirkung, Pfeil der Geschwindigkeitsänderung (zeichnerisch); zweites Newton'sches Gesetz F · Δt = m · Δv, Definition der Kraft, Masse als Maß für die Trägheit, dynamische Kraftmessung; Beschleunigung und F = m · a nur im Spezialfall eindimensionaler Bewegung; Experiment zur Bestimmung einer Beschleunigung.",
+  "Mechanik: Kräfte und ihre Wirkungen":
+    "Masse und Gewichtskraft, Fallbeschleunigung, freier Fall als eindimensionale Bewegung; Bewegungen unter mehreren Kräften, Kräfteaddition (wie Geschwindigkeitspfeile), Reibungskräfte einschließlich Luftwiderstand nur als Hinweis; Kräftegleichgewicht und Trägheitssatz; Kräftezerlegung an der schiefen Ebene; statische Kraftmessung; Kräfte als Ursache von Verformung, Dehnung-Kraft-Diagramme, Hooke'scher Bereich; Sicherheitssysteme im Auto mit Trägheitssatz und zweitem Newton'schen Gesetz erklären.",
+};
+
+/** LehrplanPLUS-Stoffrahmen für Klasse + Fach + Thema (leer, wenn unbekannt). */
+export function lehrplanFuer(
+  klasse: number,
+  fachName: string,
+  thema: string,
+): string {
+  return LEHRPLAN[`${klasse}|${fachName}|${thema}`] ?? "";
+}
+
+/** Kuratierte Unterthemen für Klasse + Fach + Thema (leer, wenn unbekannt). */
+export function unterthemenFuer(
+  klasse: number,
+  fachName: string,
+  thema: string,
+): string[] {
+  return UNTERTHEMEN[`${klasse}|${fachName}|${thema}`] ?? [];
+}
+
 /** Fächer für eine Klasse (mit Themenvorschlägen, falls vorhanden). */
 export function faecherFuerKlasse(klasse: number): Fach[] {
   return CURRICULUM[klasse] ?? BASIS_FAECHER;

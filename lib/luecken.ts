@@ -31,9 +31,20 @@ export function normalize(s: string): string {
     .replace(/[.,;:!?]+$/g, "");
 }
 
+/** Zahl aus "0,250" / "0.25" / "3 200" – sonst null (Einheiten werden nicht erkannt). */
+function alsZahl(s: string): number | null {
+  const t = s.trim().replace(/\s/g, "").replace(",", ".");
+  return /^[-+]?\d+(\.\d+)?$/.test(t) ? Number(t) : null;
+}
+
 /** Ist die Eingabe eine der akzeptierten Lösungen dieser Lücke? */
 export function lueckeRichtig(eingabe: string | undefined, loesungen: string[]): boolean {
   if (!eingabe || eingabe.trim() === "") return false;
   const n = normalize(eingabe);
-  return loesungen.some((l) => normalize(l) === n);
+  const zahl = alsZahl(eingabe);
+  return loesungen.some((l) => {
+    if (normalize(l) === n) return true;
+    const lz = alsZahl(l);
+    return zahl !== null && lz !== null && zahl === lz;
+  });
 }

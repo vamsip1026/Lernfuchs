@@ -128,10 +128,12 @@ export function TestView({
 
   const auswertung = useMemo(() => {
     const bewertungen = paper.aufgaben.map((a, i) => {
-      // Nutze API-Bewertung falls vorhanden (offene Aufgaben).
-      if (a.typ === "offen" && gradedAnswers && i in gradedAnswers) {
-        const graded = gradedAnswers[i];
-        return { grade: "correct" as Grade, punkte: graded.punkte };
+      // Nutze KI-Bewertung falls vorhanden (offene Aufgaben, Rechnen, Kurzantwort).
+      if (gradedAnswers && i in gradedAnswers) {
+        const punkte = gradedAnswers[i].punkte;
+        const grade: Grade =
+          punkte >= a.punkte ? "correct" : punkte > 0 ? "partial" : "incorrect";
+        return { grade, punkte };
       }
       return gradeAnswer(a, antworten[i]);
     });
@@ -168,6 +170,7 @@ export function TestView({
 
   async function gradeOpenAnswers() {
     // Sammle alle offenen Aufgaben mit Antworten.
+    // Offene Aufgaben sowie Rechnen/Kurzantwort, die nicht exakt stimmen.
     const toGrade = paper.aufgaben
       .map((a, i) => ({
         aufgabeIndex: i,
@@ -176,9 +179,9 @@ export function TestView({
       }))
       .filter(
         (x): x is { aufgabeIndex: number; aufgabe: typeof x.aufgabe; antwort: string } =>
-          x.aufgabe.typ === "offen" &&
           typeof x.antwort === "string" &&
-          x.antwort.trim() !== "",
+          x.antwort.trim() !== "" &&
+          gradeAnswer(x.aufgabe, x.antwort).grade === "review",
       );
 
     if (toGrade.length === 0) return;
@@ -190,6 +193,7 @@ export function TestView({
         body: JSON.stringify({
           answers: toGrade.map((x) => ({
             aufgabeIndex: x.aufgabeIndex,
+            frage: x.aufgabe.frage,
             antwort: x.antwort,
             loesung: x.aufgabe.loesung,
             erklaerung: x.aufgabe.erklaerung,
@@ -419,6 +423,8 @@ export function TestView({
                   onClick={() => {
                     setAbgegeben(false);
                     setAntworten({});
+                    setGradedAnswers(null);
+                    setGradingError(null);
                   }}
                   className="rounded-lg px-3 py-2 text-sm font-medium text-slate-700 ring-1 ring-slate-300 transition hover:bg-slate-100 dark:text-slate-200 dark:ring-slate-700 dark:hover:bg-slate-800"
                 >
@@ -521,7 +527,7 @@ function InteractiveView({
                 <span className="shrink-0 rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-500 dark:bg-slate-800 dark:text-slate-400">
                   {abgegeben && grade !== "review"
                     ? `${punkte} / ${a.punkte} P` +
-                      (a.typ === "offen" && gradedAnswers && i in gradedAnswers
+                      (gradedAnswers && i in gradedAnswers
                         ? ` (${Math.round((punkte / a.punkte) * 100)}%)`
                         : "")
                     : `${a.punkte} P`}
@@ -557,7 +563,7 @@ function InteractiveView({
                         : "❌ Nicht korrekt"}
                 </p>
                 {/* Feedback von Claude-Bewertung für offene Aufgaben. */}
-                {a.typ === "offen" && gradedAnswers && i in gradedAnswers && (
+                {gradedAnswers && i in gradedAnswers && (
                   <p className="mt-1 text-emerald-700 dark:text-emerald-300">
                     {gradedAnswers[i].feedback}
                   </p>
@@ -582,7 +588,7 @@ function InteractiveView({
                     </p>
                   </>
                 )}
-                {a.typ === "offen" && !gradedAnswers && (
+                {a.typ === "offen" && !(gradedAnswers && i in gradedAnswers) && (
                   <>
                     <p className="mt-1 text-slate-700 dark:text-slate-200">
                       <span className="font-medium">Erwartungshorizont:</span>{" "}
