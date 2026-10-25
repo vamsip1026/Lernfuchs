@@ -520,7 +520,10 @@ function InteractiveView({
               {benotet && (
                 <span className="shrink-0 rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-500 dark:bg-slate-800 dark:text-slate-400">
                   {abgegeben && grade !== "review"
-                    ? `${punkte} / ${a.punkte} P`
+                    ? `${punkte} / ${a.punkte} P` +
+                      (a.typ === "offen" && gradedAnswers && i in gradedAnswers
+                        ? ` (${Math.round((punkte / a.punkte) * 100)}%)`
+                        : "")
                     : `${a.punkte} P`}
                 </span>
               )}

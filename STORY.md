@@ -127,7 +127,15 @@ students saw "Lösung: the correct text" but not which letter it was. Now it sho
 explicitly instructs Claude to **preserve minus signs and use proper chemical notation**
 (Cl⁻, Ca²⁺, -114 kJ/mol, etc.).
 
-## 18. What's next
+## 18. Finer grading for open-ended answers (Granular levels)
+AI grading of free-text answers was expanded from three fixed levels (0%, 50%, 100%) 
+to **11 granular levels** (0–100% in 10% steps). Now Claude can distinguish between 
+answers that are "mostly correct with small gaps" (70–80%) versus "partially correct" 
+(50–60%), providing fairer assessment and more informative feedback. The UI now shows 
+both points and percentage for graded answers, making the assessment more transparent 
+(e.g., "4 / 5 P (80%)").
+
+## 19. What's next
 Still on the list: a **public web address** so friends can use it too, a **more
 durable history** that isn't tied to a single browser, and product ideas like
 **monetization** and **free sample tests**.

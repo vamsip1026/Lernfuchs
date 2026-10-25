@@ -194,18 +194,20 @@ export async function gradeAnswers(
     `Du bist ein strenger, aber fairer Deutschlehrer, der freie Antworten von Schülern bewertet.`,
     `Bewerte die folgenden Schülerantworten anhand des Erwartungshorizonts und der Bewertungskriterien.`,
     ``,
-    `Für jede Antwort vergib:`,
-    `- Volle Punktzahl (100 %), wenn die Antwort korrekt und vollständig ist`,
-    `- Halbe Punktzahl (50 %), wenn die Antwort teilweise richtig, aber mit Fehlern oder unvollständig ist`,
-    `- 0 Punkte (0 %), wenn die Antwort falsch, nicht sinnvoll oder zu ungenau ist`,
+    `Für jede Antwort vergib eine Punktzahl von 0–100 % in 10-%-Schritten (0, 10, 20, ... 90, 100):`,
+    `- 90–100 %: vollständig korrekt und vollständig`,
+    `- 70–80 %: weitgehend richtig, kleine Fehler oder Lücken`,
+    `- 50–60 %: teilweise richtig, wesentliche Fehler oder unvollständig`,
+    `- 20–40 %: Ansätze erkennbar, aber überwiegend falsch`,
+    `- 0–10 %: falsch oder nicht sinnvoll`,
     ``,
     `Gib für jede Antwort eine kurze Rückmeldung auf Deutsch (1–2 Sätze):`,
-    `- Bei korrekter Antwort: kurze Bestätigung`,
-    `- Bei Fehler: kurz erklären, was war falsch oder wie könnte es besser sein`,
+    `- Bei korrekter Antwort (70 % oder mehr): kurze Bestätigung`,
+    `- Bei Fehler (unter 70 %): kurz erklären, was war falsch oder wie könnte es besser sein`,
     ``,
     answerTexts,
     ``,
-    `Antworte strukturiert als JSON mit Punkten (ganzzahl) und Feedback.`,
+    `Antworte strukturiert als JSON mit Punkten (ganzzahl, 0-100) und Feedback.`,
   ].join("\n");
 
   const response = await client.beta.messages.parse({
@@ -227,8 +229,8 @@ export async function gradeAnswers(
         feedback: "Bewertung fehlgeschlagen.",
       };
     }
-    // Punkte auf 0, 50%, 100% der Maximalpunktzahl normalisieren
-    // (Claude könnte 50 geben, wir brauchen aber 50% von a.punkte)
+    // Punkte als Prozent (0-100) auf die tatsächliche Punktzahl normalisieren
+    // (Claude gibt z.B. 70, wir berechnen 70% von a.punkte)
     const pct = Math.min(100, Math.max(0, result.punkte));
     const final = Math.round((a.punkte * pct) / 100);
     return {

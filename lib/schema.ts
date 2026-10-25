@@ -123,7 +123,7 @@ export type GradeRequest = z.infer<typeof GradeRequestSchema>;
 /** Bewertung einer offenen Antwort. */
 export const GradeResultSchema = z.object({
   aufgabeIndex: z.number().int(),
-  punkte: z.number().int().describe("Erreichte Punkte (0, Hälfte oder voll)"),
+  punkte: z.number().int().describe("Erreichte Punktzahl als Prozent (0-100 in 10-%-Schritten)"),
   feedback: z
     .string()
     .describe(
