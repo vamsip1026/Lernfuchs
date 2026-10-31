@@ -694,12 +694,77 @@ const UNTERTHEMEN: Record<string, string[]> = {
 const LEHRPLAN: Record<string, string> = {
   "8|Physik|Elektrischer Strom":
     "Stromkreismodell (mit Modellgrenzen), Stromstärke, Stromrichtung, Spannung als Antrieb, Gleich- und Wechselstrom; Kennlinien eines ohmschen und eines nicht-ohmschen Widerstands (messen, protokollieren, Gefahren des Stroms beachten); Widerstand, Leiter, Isolator, Kurzschluss; Definitionsgleichung des elektrischen Widerstands in einfachen Stromkreisen (auf Einheiten und Messgenauigkeit achten); Reihen- und Parallelschaltung mit höchstens drei Widerständen (Stromstärken und Spannungen untersuchen); einfache Haushaltsinstallation und Sicherheit. NICHT Teil des Lehrplans: elektrische Ladung/Coulomb und Q = I · t.",
-  Optik:
+  "8|Physik|Optik":
     "Lichtausbreitung (einfaches Modell), Reflexionsgesetz, Bildentstehung am Spiegel, virtuelles Bild; Brechung (halbquantitativ, kein Rechnen mit dem Brechungsgesetz); Abbildung durch eine Sammellinse, reelle und virtuelle Bilder (halbquantitative Aussagen, Zeichnungen); Auge und Fehlsichtigkeit, Zerstreuungslinsen; Totalreflexion und technische Anwendungen, Lichtleiter; Risiken im Umgang mit Lichtquellen (z. B. Laserpointer).",
-  "Mechanik: Dynamik zweidimensionaler Bewegungen":
+  "8|Physik|Mechanik: Dynamik zweidimensionaler Bewegungen":
     "Betrag der Geschwindigkeit und Definitionsgleichung (abschätzen, bestimmen, einfach berechnen, Einheiten); Geschwindigkeitspfeil bei zweidimensionalen Bewegungen (Stroboskopbilder, Videos); Geschwindigkeitsänderung durch Krafteinwirkung, Pfeil der Geschwindigkeitsänderung (zeichnerisch); zweites Newton'sches Gesetz F · Δt = m · Δv, Definition der Kraft, Masse als Maß für die Trägheit, dynamische Kraftmessung; Beschleunigung und F = m · a nur im Spezialfall eindimensionaler Bewegung; Experiment zur Bestimmung einer Beschleunigung.",
-  "Mechanik: Kräfte und ihre Wirkungen":
+  "8|Physik|Mechanik: Kräfte und ihre Wirkungen":
     "Masse und Gewichtskraft, Fallbeschleunigung, freier Fall als eindimensionale Bewegung; Bewegungen unter mehreren Kräften, Kräfteaddition (wie Geschwindigkeitspfeile), Reibungskräfte einschließlich Luftwiderstand nur als Hinweis; Kräftegleichgewicht und Trägheitssatz; Kräftezerlegung an der schiefen Ebene; statische Kraftmessung; Kräfte als Ursache von Verformung, Dehnung-Kraft-Diagramme, Hooke'scher Bereich; Sicherheitssysteme im Auto mit Trägheitssatz und zweitem Newton'schen Gesetz erklären.",
+
+  "8|Mathematik|Funktion und Term":
+    "Funktionale Zusammenhänge mit Tabellen, Diagrammen und Termen; Funktion als eindeutige Zuordnung; Fachbegriffe Funktionsterm, Graph, Definitionsmenge, Wertemenge; Schnittpunkte mit den Koordinatenachsen; Lage von Punkten bezüglich des Graphen.",
+  "8|Mathematik|Lineare Funktionen":
+    "y = m · x + t, Bedeutung der Parameter m und t; Geradengleichungen aufstellen; Nullstellen und Schnittpunkte; lineare Ungleichungen graphisch und rechnerisch lösen, Ergebnis in Intervallschreibweise; Spezialfall y = a · x (direkte Proportionalität).",
+  "8|Mathematik|Elementare gebrochen-rationale Funktionen":
+    "Nur Funktionen der Form a/(x + b) + c: maximale Definitionsmenge, Schnittpunkte, Einfluss der Parameter b und c, Graphen mit Asymptoten zeichnen; Spezialfall y = a/x (indirekte Proportionalität).",
+  "8|Mathematik|Bruchterme und Bruchgleichungen":
+    "Bruchterme angemessener Komplexität erweitern und kürzen (auch mit Distributivgesetz), addieren, subtrahieren, multiplizieren, dividieren; Potenzgesetze für ganzzahlige Exponenten; Bruchgleichungen angemessener Komplexität lösen; Formeln nach einer Variablen auflösen.",
+  "8|Mathematik|Lineare Gleichungssysteme":
+    "Nur Systeme mit zwei Unbekannten: Sachzusammenhänge beschreiben, graphisch und rechnerisch lösen (z. B. Einsetzungsverfahren); Erhalt der Lösungsmenge begründen; Lösbarkeit und Anzahl der Lösungen.",
+  "8|Mathematik|Laplace-Experimente (Wahrscheinlichkeit)":
+    "Zufallsexperiment vs. deterministischer Vorgang; Ergebnis, Ergebnismenge, Ereignis, Gegenereignis; relative Häufigkeit, empirisches Gesetz der großen Zahlen; Laplace-Experimente abgrenzen; Laplace-Wahrscheinlichkeiten mit Zählprinzip und Baumdiagrammen.",
+  "8|Mathematik|Kreis und Zylinder":
+    "Umfang und Flächeninhalt des Kreises, Näherungswert für π; Kreisteile (Sektor, Bogen) und Sachaufgaben; Schrägbilder und Netze gerader Prismen und Kreiszylinder; Oberfläche und Volumen des Kreiszylinders.",
+
+  "8|Chemie|Wie Chemiker denken und arbeiten":
+    "Gefahrstoffkennzeichnung, Laborregeln, Entsorgung; einfache Arbeitstechniken (Temperatur, Masse, Volumen); naturwissenschaftlicher Erkenntnisweg und Protokoll; Variablenkontrolle, Blindprobe; Beobachtung vs. Deutung; Modelle (Teilchenmodell, Daltonsches Atommodell, Kern-Hülle-Modell) mit Grenzen; Stoff- vs. Teilchenebene; Nomenklatur binärer anorganischer Verbindungen und einfacher Kohlenwasserstoffe; einfache Reaktionsgleichungen.",
+  "8|Chemie|Stoffe und ihre Eigenschaften (Teilchenmodell)":
+    "Stoffportionen (Masse, Volumen); Teilchenmodell; Aggregatzustände und ihre Änderungen; Kenneigenschaften Schmelztemperatur, Siedetemperatur, Dichte, dazu Löslichkeit, Magnetismus; saure/neutrale/basische Lösungen mit Indikatoren; Reinstoff, homogene/heterogene Gemische; Trennverfahren Destillation, einfache Chromatographie, Extraktion; Gasnachweise Glimmspan-, Kalkwasser-, Knallgasprobe; Luft als Gemisch.",
+  "8|Chemie|Chemische Reaktion (Daltonsches Atommodell)":
+    "Stoff- und Energieumsatz, Abgrenzung von physikalischen Vorgängen; exotherm/endotherm, Aktivierung, Katalyse, Energiediagramme; Massenerhaltung; Daltonsches Atommodell, Elemente und Verbindungen, Periodensystem (Metalle, Halbmetalle, Nichtmetalle); relative Atommasse, Avogadro-Hypothese, Volumengesetze, Molekülformeln; Stoffmenge, molare Masse, molares Volumen, Avogadro-Konstante, Stoffumsätze bei einfachen Molekülreaktionen; Verbrennung einfacher Kohlenwasserstoffe, Alkane; fossile/nachwachsende Energieträger, Kohlenstoffdioxid-Kreislauf.",
+  "8|Chemie|Chemische Verbindungen (Kern-Hülle-Modell)":
+    "Reibungselektrizität und Leitfähigkeit; Atome, Moleküle, Ionen; molekulare Verbindungen (Nichtmetall + Nichtmetall) vs. Salze (Metall + Nichtmetall); Metallbindung im Elektronengasmodell, Metalleigenschaften; Ionenbindung und Ionengitter (Kugelpackung, keine Gittertypen); Verhältnisformeln aus Ionenladungen, Molekül-Ionen, Benennung von Salzen; Salzeigenschaften; Ionennachweise (Fällung, Farbreaktion, Flammenfärbung); Kern-Hülle-Modell, Rutherfordscher Streuversuch, Proton, Neutron, Elektron. Kein Schalen- oder Orbitalmodell.",
+
+  "8|Biologie|Informationsaufnahme und -verarbeitung beim Menschen (Nervensystem, Sinne)":
+    "Nervenzelle, chemische Synapse, Reiz-Reaktions-Kette (afferent/efferent); Auge: lichtbrechender Apparat, Akkommodation, Sehfehler und Korrektur, Stäbchen und Zapfen, optische Täuschungen; Hörvorgang und Lärmschäden; Hormone (Schlüssel-Schloss-Modell), Blutzuckerregulation, Diabetes; Stressreaktion, vegetatives Nervensystem; Vergleich Nerven- und Hormonsystem.",
+  "8|Biologie|Fortpflanzung und Individualentwicklung des Menschen":
+    "Bedeutung der Sexualität; Geschlechtsidentität, sexuelle Orientierung, Selbstbestimmung; Pubertät und Menstruationszyklus mit hormoneller Steuerung; Schwangerschaft (Plazenta, Lebensführung); Empfängnisregulation; ungewollte Schwangerschaft, unerfüllter Kinderwunsch; Schutz vor sexuell übertragbaren Erkrankungen (HIV). Sachlich und altersgerecht formulieren.",
+  "8|Biologie|Verhalten – genetisch bedingt und erlernt":
+    "Reaktionsauslösende Reize und innere Faktoren (Beutefang, Balz, Brutpflege); Attrappenversuche; genetisch bedingtes Verhalten, Kaspar-Hauser-Experimente, Prägung; klassische und operante Konditionierung; Lernfähigkeit des Menschen.",
+  "8|Biologie|Suchtgefahren und Gesundheit":
+    "Genuss, Gewöhnung, Missbrauch, Abhängigkeit; stoffgebundene (z. B. Alkohol) und nicht stoffgebundene Sucht (z. B. Mediensucht); physiologische und psychische Ursachen; physische, psychische, soziale Folgen; Lebenskompetenzen.",
+  "8|Biologie|Ökosysteme unter dem Einfluss des Menschen":
+    "Sukzession, Wildnis, Kulturlandschaft, Artenkenntnis; Eingriffe des Menschen in ein ortsnahes Ökosystem (Land- und Forstwirtschaft, Flussregulierung, Zersiedelung, Renaturierung); nachhaltige Entwicklung, ökologischer Fußabdruck, Konsum und politisches Engagement.",
+
+  "8|Geschichte|Aufklärung, Französische Revolution und Napoleon":
+    "Ursachen der Französischen Revolution, Grundzüge bis 1794; Gewaltenteilung (Verfassungsschaubilder); Kaisertum Napoleons, territoriale Veränderungen in Deutschland; Reformen in Bayern unter Montgelas. Daten/Begriffe: 1789, 1806 (Ende des Heiligen Römischen Reichs, Königreich Bayern), Aufklärung, Menschenrechte, konstitutionelle Monarchie, Nation, Bürgertum, Volkssouveränität, Säkularisation.",
+  "8|Geschichte|Deutschland zwischen Restauration und Revolution (1848)":
+    "Nationalidee und Befreiungskriege; Wiener Kongress und Deutscher Bund; Restauration und Zensur; liberale und nationale Bewegung; Revolution 1848/49. Daten/Begriffe: 1815 Wiener Kongress, 1832 Hambacher Fest, 1848/49, Nationalismus, Liberalismus, Parlament.",
+  "8|Geschichte|Bayern – Identität und kulturelles Erbe":
+    "Bevölkerungsgruppen Bayerns (Altbayern, Franken, Schwaben, Heimatvertriebene, Spätaussiedler, Zuwanderer), Staatswappen; territoriale Entwicklung vom Stammesherzogtum bis nach 1945; kulturelles Erbe (Regensburg, Bamberg, Bauten Ludwigs I., Schlösser Ludwigs II.).",
+  "8|Geschichte|Industrialisierung und Soziale Frage":
+    "Merkmale der Industrialisierung am Beispiel Englands; Industrialisierung in Deutschland und Bayern; Arbeits- und Lebensbedingungen; Soziale Frage und Lösungsansätze im Überblick. Begriffe: Industrialisierung, Soziale Frage, Sozialismus, Kommunismus.",
+  "8|Geschichte|Das Deutsche Kaiserreich":
+    "Reichsgründung 1871 (auch aus bayerischer Sicht), Reichsverfassung und Parteien, Sozialdemokratie, Sozialgesetzgebung Bismarcks, Obrigkeitsstaat, Militarismus, Nationalismus, Massenkultur, Frauenbewegung. Daten/Begriffe: 1871, Bismarck, Reichstag.",
+  "8|Geschichte|Imperialismus und Erster Weltkrieg":
+    "Ziele und Methoden des Imperialismus; Weg in den Krieg (Wettrüsten, Balkan, Julikrise 1914); Stellungskrieg, Materialschlacht; Epochenjahr 1917 (Kriegseintritt USA, Russische Revolution); Niederlage der Mittelmächte; Versailler Vertrag, Pariser Vorortverträge, Kriegsschuldfrage. Daten: 1914–1918.",
+
+  "8|Deutsch|Argumentieren und begründet Stellung nehmen":
+    "Eigenen Standpunkt zu Sachverhalten aus dem weiteren Erfahrungsbereich (z. B. Medien, digitale Kommunikation) planvoll und schlüssig begründen, auch mithilfe von Materialien; linear aufgebauter argumentierender Text, ggf. Leserbrief; auf Gegenargumente eingehen.",
+  "8|Deutsch|Inhaltsangabe":
+    "Über literarische Texte informieren: Thema formulieren, Inhalt und wesentliche Zusammenhänge darstellen.",
+  "8|Deutsch|Sachtexte und nichtlineare Texte / Medien":
+    "Pragmatische Texte nach Inhalt, Aufbau, Argumentation, Adressatenbezug, Intention und Medium untersuchen; journalistische Textsorten (Nachricht, Kommentar, Glosse, Blog); Informationsqualität verschiedener Medien kritisch vergleichen.",
+  "8|Deutsch|Lyrik und Balladen":
+    "In lyrischen Texten v. a. Sprechsituation und Bildlichkeit untersuchen; Gedichte interpretierend vortragen.",
+  "8|Deutsch|Epische Texte / Jugendbuch":
+    "In epischen Texten (z. B. moderne Kurzprosa, Jugendbuch) Handlung (chronologisch-kausale Zusammenhänge, Figuren) und Darstellungsweise (Erzählerbericht, Figurenrede) untersuchen; Handlungen und Denkweisen von Figuren reflektieren.",
+  "8|Deutsch|Aktiv und Passiv":
+    "Funktion von Genus Verbi (Aktiv, Passiv) beschreiben und zur sprachlichen Differenzierung einsetzen.",
+  "8|Deutsch|Konjunktiv und indirekte Rede":
+    "Funktion des Modus beschreiben; Formen der Redewiedergabe (Paraphrase, indirekte Rede, Infinitivkonstruktion, Modalverben) beim Übernehmen von Informationen aus Texten verwenden.",
+  "8|Deutsch|Zeichensetzung (Kommasetzung bei Gliedsätzen)":
+    "Regeln der Zeichensetzung anwenden, u. a. beim Zitieren; orthografisch und grammatikalisch weitgehend richtig schreiben.",
 };
 
 /** LehrplanPLUS-Stoffrahmen für Klasse + Fach + Thema (leer, wenn unbekannt). */
