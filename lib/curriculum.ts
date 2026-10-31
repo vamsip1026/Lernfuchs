@@ -8,6 +8,12 @@
  * hier ergänzen.
  */
 
+import { LEHRPLAN_K5 } from "./lehrplan-k5";
+import { LEHRPLAN_K6 } from "./lehrplan-k6";
+import { LEHRPLAN_K7 } from "./lehrplan-k7";
+import { LEHRPLAN_K9 } from "./lehrplan-k9";
+import { LEHRPLAN_K10 } from "./lehrplan-k10";
+
 export type Fach = {
   name: string;
   themen: string[];
@@ -637,8 +643,7 @@ export const LEHRWERKE: Record<string, string> = {
 
 // Kuratierte Unterthemen je Thema (Schlüssel: "Klasse|Fach|Thema"). Sie dienen
 // den Unterthemen-Vorschlägen als verbindliche Grundlage statt freier Erfindung.
-// Klasse 8 Physik: Kapitel laut Inhaltsverzeichnis Dorn-Bader. Klasse 9: ENTWURF
-// aus dem LehrplanPLUS – noch mit dem Schulbuch abgleichen.
+// Klasse 8 Physik: Kapitel laut Inhaltsverzeichnis Dorn-Bader.
 const UNTERTHEMEN: Record<string, string[]> = {
   "8|Physik|Elektrischer Strom": [
     "Die elektrische Stromstärke",
@@ -654,44 +659,16 @@ const UNTERTHEMEN: Record<string, string[]> = {
     "Linsen machen Bilder",
     "Das Auge, ein optisches System",
   ],
-  "9|Physik|Energie als Erhaltungsgröße (mechanisch, elektrisch)": [
-    "Energieformen und Energieumwandlungen",
-    "Energieerhaltung und Energieentwertung",
-    "Höhenenergie und Spannenergie",
-    "Bewegungsenergie",
-    "Mechanische Arbeit und Leistung",
-    "Wirkungsgrad",
-    "Elektrische Energie und Leistung (P = U · I)",
-    "Energiebilanz im Stromkreis",
-  ],
-  "9|Physik|Atome": [
-    "Atommodell nach Rutherford (Kern und Hülle)",
-    "Aufbau des Atoms: Protonen, Neutronen, Elektronen",
-    "Elektrische Ladung und Ladungstrennung",
-    "Elementarladung",
-    "Elektrische Leitungsvorgänge (Metalle, Ionen)",
-  ],
-  "9|Physik|Wärmelehre (Teilchenmodell)": [
-    "Teilchenmodell und Aggregatzustände",
-    "Temperatur und innere Energie",
-    "Thermische Ausdehnung",
-    "Absolute Temperatur (Kelvin)",
-    "Wärmekapazität und Wärmemenge",
-    "Schmelzen, Verdampfen, Umwandlungswärme",
-    "Mischungsversuche",
-  ],
-  "9|Physik|Thermischer Energietransport und Klima": [
-    "Wärmeleitung",
-    "Konvektion",
-    "Wärmestrahlung",
-    "Wärmedämmung",
-    "Treibhauseffekt und Klima",
-  ],
 };
 
 // Verbindlicher Stoffrahmen je Thema aus dem LehrplanPLUS Bayern (Gymnasium),
 // Schlüssel wie bei UNTERTHEMEN. Wird dem Prompt als Obergrenze mitgegeben.
 const LEHRPLAN: Record<string, string> = {
+  ...LEHRPLAN_K5,
+  ...LEHRPLAN_K6,
+  ...LEHRPLAN_K7,
+  ...LEHRPLAN_K9,
+  ...LEHRPLAN_K10,
   "8|Physik|Elektrischer Strom":
     "Stromkreismodell (mit Modellgrenzen), Stromstärke, Stromrichtung, Spannung als Antrieb, Gleich- und Wechselstrom; Kennlinien eines ohmschen und eines nicht-ohmschen Widerstands (messen, protokollieren, Gefahren des Stroms beachten); Widerstand, Leiter, Isolator, Kurzschluss; Definitionsgleichung des elektrischen Widerstands in einfachen Stromkreisen (auf Einheiten und Messgenauigkeit achten); Reihen- und Parallelschaltung mit höchstens drei Widerständen (Stromstärken und Spannungen untersuchen); einfache Haushaltsinstallation und Sicherheit. NICHT Teil des Lehrplans: elektrische Ladung/Coulomb und Q = I · t.",
   "8|Physik|Optik":

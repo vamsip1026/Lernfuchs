@@ -171,11 +171,15 @@ export async function suggestSubtopics(
 
   // Kuratierte Liste vorhanden → direkt verwenden, keine freie Erfindung.
   if (kuratiert.length > 0) return kuratiert;
+  const rahmen = lehrplanFuer(req.klasse, req.fach, req.thema);
 
   const prompt = [
     `Nenne 6 bis 8 konkrete, übbare Teilaspekte (Unterthemen) zum Thema "${req.thema}"`,
     `im Fach ${req.fach}, Jahrgangsstufe ${req.klasse} am Gymnasium in Bayern (LehrplanPLUS).`,
     lehrwerk ? `Orientiere dich am Lehrwerk "${lehrwerk}".` : "",
+    rahmen
+      ? `Wähle die Unterthemen nur aus diesem verbindlichen Stoffrahmen laut LehrplanPLUS, nichts darüber hinaus: ${rahmen}`
+      : "",
     `Jedes Unterthema soll ein kleiner, an einem Schultag übbarer Aspekt sein (z. B. eine einzelne Rechenart, Regel oder Fertigkeit), kurz formuliert.`,
     `Antworte auf Deutsch.`,
   ]
