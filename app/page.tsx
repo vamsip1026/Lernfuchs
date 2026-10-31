@@ -22,7 +22,42 @@ import {
   speichereTest,
   type VerlaufEintrag,
 } from "@/lib/verlauf";
+import { En } from "./En";
 import { TestView } from "./TestView";
+
+// Englische Namen für Auswahllisten (Anzeige; Werte/Prompt bleiben deutsch).
+const EN: Record<string, string> = {
+  Mathematik: "Maths",
+  Deutsch: "German",
+  Englisch: "English",
+  Französisch: "French",
+  Physik: "Physics",
+  Chemie: "Chemistry",
+  Biologie: "Biology",
+  Geschichte: "History",
+  Geographie: "Geography",
+  "Natur und Technik": "Science and Technology",
+  "Religion / Ethik": "Religion / Ethics",
+  Informatik: "Computer Science",
+  uebungsblatt: "Practice sheet",
+  stegreifaufgabe: "Pop quiz",
+  kurzarbeit: "Announced short test",
+  schulaufgabe: "Major exam",
+  test_vokabeltest: "Test / vocabulary test",
+  muendliche_abfrage: "Oral quiz",
+  automatisch: "Automatic",
+  kurzantwort: "Short answer",
+  rechnen: "Calculations",
+  lueckentext: "Fill in the blanks",
+  richtig_falsch: "True / False",
+  leicht: "Easy",
+  mittel: "Medium",
+  schwer: "Hard",
+};
+
+function mitEn(text: string, key: string): string {
+  return EN[key] ? `${text} (${EN[key]})` : text;
+}
 
 // Ein Eintrag im Inhalte-Builder (ein Thema, ganz oder eingegrenzt).
 type ScopeItem = {
@@ -231,7 +266,7 @@ export default function Home() {
             <input
               type="text"
               className="input"
-              placeholder="Code von Vamsi"
+              placeholder="Code von Vamsi (code from Vamsi)"
               value={passcode}
               onChange={(e) => {
                 setPasscode(e.target.value);
@@ -260,7 +295,7 @@ export default function Home() {
           >
             {KLASSEN.map((k) => (
               <option key={k} value={k}>
-                {k}. Klasse
+                {k}. Klasse (Year {k})
               </option>
             ))}
           </select>
@@ -278,13 +313,13 @@ export default function Home() {
           >
             {faecher.map((f) => (
               <option key={f.name} value={f.name}>
-                {fachStil(f.name).emoji} {f.name}
+                {fachStil(f.name).emoji} {mitEn(f.name, f.name)}
               </option>
             ))}
           </select>
           {lehrwerkFuer(klasse, fach) && (
             <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-              📘 Lehrwerk: {lehrwerkFuer(klasse, fach)}
+              📘 Lehrwerk <En>Textbook</En>: {lehrwerkFuer(klasse, fach)}
             </p>
           )}
         </Field>
@@ -329,12 +364,13 @@ export default function Home() {
                       }
                     />
                     Auf Unterthemen eingrenzen
+                    <En>Narrow to sub-topics</En>
                     <span className="text-slate-400 dark:text-slate-500">
                       {item.eingrenzen
                         ? item.unterthemen.length > 0
-                          ? `· nur: ${item.unterthemen.join(", ")}`
-                          : "· Unterthemen wählen…"
-                        : "· ganzes Thema"}
+                          ? `· nur (only): ${item.unterthemen.join(", ")}`
+                          : "· Unterthemen wählen… (choose sub-topics)"
+                        : "· ganzes Thema (whole topic)"}
                     </span>
                   </label>
 
@@ -369,7 +405,16 @@ export default function Home() {
                           disabled={item.laedt}
                           className="rounded-lg px-3 py-1.5 text-sm font-medium text-indigo-700 ring-1 ring-indigo-300 transition hover:bg-indigo-50 disabled:opacity-50 dark:text-indigo-300 dark:ring-indigo-800 dark:hover:bg-indigo-950"
                         >
-                          {item.laedt ? "Lädt…" : "💡 Unterthemen vorschlagen"}
+                          {item.laedt ? (
+                            <>
+                              Lädt… <En>Loading</En>
+                            </>
+                          ) : (
+                            <>
+                              💡 Unterthemen vorschlagen{" "}
+                              <En>Suggest sub-topics</En>
+                            </>
+                          )}
                         </button>
                       </div>
                       {item.fehler && (
@@ -406,7 +451,7 @@ export default function Home() {
                         <input
                           type="text"
                           className="input"
-                          placeholder="Eigenes Unterthema…"
+                          placeholder="Eigenes Unterthema… (own sub-topic)"
                           value={item.eigenesUnterthema}
                           onChange={(e) =>
                             patchItem(item.id, {
@@ -449,20 +494,20 @@ export default function Home() {
               setNeuesThema("");
             }}
           >
-            <option value="">+ Thema hinzufügen…</option>
+            <option value="">+ Thema hinzufügen… (Add topic)</option>
             {verfuegbareThemen.map((t) => (
               <option key={t} value={t}>
                 {t}
               </option>
             ))}
-            <option value="__eigenes__">✏️ Eigenes Thema eingeben…</option>
+            <option value="__eigenes__">✏️ Eigenes Thema eingeben… (Enter own topic)</option>
           </select>
           {neuesThema === "__eigenes__" && (
             <div className="mt-2 flex gap-2">
               <input
                 type="text"
                 className="input"
-                placeholder="z. B. Lineare Gleichungen"
+                placeholder="z. B. Lineare Gleichungen (e.g. linear equations)"
                 value={eigenesThemaText}
                 onChange={(e) => setEigenesThemaText(e.target.value)}
                 onKeyDown={(e) => {
@@ -484,7 +529,7 @@ export default function Home() {
                 }}
                 className="shrink-0 rounded-lg px-3 py-2 text-sm font-medium text-slate-700 ring-1 ring-slate-300 transition hover:bg-slate-100 dark:text-slate-200 dark:ring-slate-700 dark:hover:bg-slate-800"
               >
-                Hinzufügen
+                Hinzufügen <En>Add</En>
               </button>
             </div>
           )}
@@ -492,6 +537,10 @@ export default function Home() {
             <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
               Füge ein oder mehrere Themen hinzu. Jedes Thema kann ganz behandelt
               oder auf Unterthemen eingegrenzt werden.
+              <span className="mt-0.5 block text-xs text-slate-400 dark:text-slate-500">
+                (Add one or more topics. Each topic can be covered in full or
+                narrowed to sub-topics.)
+              </span>
             </p>
           )}
         </div>
@@ -505,7 +554,7 @@ export default function Home() {
           >
             {PRUEFUNGSARTEN.map((p) => (
               <option key={p.value} value={p.value}>
-                {p.label}
+                {mitEn(p.label, p.value)}
               </option>
             ))}
           </select>
@@ -524,7 +573,7 @@ export default function Home() {
             >
               {SCHWIERIGKEITEN.map((s) => (
                 <option key={s.value} value={s.value}>
-                  {s.label}
+                  {mitEn(s.label, s.value)}
                 </option>
               ))}
             </select>
@@ -539,7 +588,7 @@ export default function Home() {
             >
               {AUFGABENFORMATE.map((f) => (
                 <option key={f.value} value={f.value}>
-                  {f.label}
+                  {mitEn(f.label, f.value)}
                 </option>
               ))}
             </select>
@@ -560,15 +609,18 @@ export default function Home() {
           {loading ? (
             <>
               <Spinner />
-              Test wird erstellt…
+              Test wird erstellt… <En hell>Creating test</En>
             </>
           ) : (
-            <>✨ Test erstellen</>
+            <>
+              ✨ Test erstellen <En hell>Create test</En>
+            </>
           )}
         </button>
         {loading && (
           <p className="text-center text-sm text-slate-500 dark:text-slate-400">
-            Die Aufgaben werden generiert – das kann 10–30 Sekunden dauern.
+            Die Aufgaben werden generiert – das kann 10–30 Sekunden dauern.{" "}
+            <En>Generating questions, this takes 10–30 seconds</En>
           </p>
         )}
       </form>
@@ -577,7 +629,7 @@ export default function Home() {
         <section className="mt-8">
           <div className="mb-2 flex items-center justify-between">
             <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100">
-              Verlauf ({verlauf.length})
+              Verlauf ({verlauf.length}) <En>History</En>
             </h2>
             <button
               type="button"
@@ -588,7 +640,7 @@ export default function Home() {
               }}
               className="text-sm text-slate-500 transition hover:text-red-600 dark:text-slate-400"
             >
-              Verlauf leeren
+              Verlauf leeren <En>Clear history</En>
             </button>
           </div>
           <ul className="space-y-2">
@@ -625,7 +677,7 @@ export default function Home() {
                       onClick={() => setPaper(e.paper)}
                       className="rounded-lg bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-indigo-700"
                     >
-                      Öffnen
+                      Öffnen <En hell>Open</En>
                     </button>
                     <button
                       type="button"
@@ -640,7 +692,7 @@ export default function Home() {
                       }}
                       className="rounded-lg px-3 py-1.5 text-sm text-slate-500 ring-1 ring-slate-300 transition hover:bg-slate-100 dark:text-slate-300 dark:ring-slate-700 dark:hover:bg-slate-800"
                     >
-                      Löschen
+                      Löschen <En>Delete</En>
                     </button>
                   </div>
                 </li>

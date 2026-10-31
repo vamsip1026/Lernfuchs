@@ -11,6 +11,7 @@ import {
 import { noteFuerProzent, notenschluesselText } from "@/lib/noten";
 import type { Aufgabe, TestPaper } from "@/lib/schema";
 import { ermutigung, fachStil } from "@/lib/ui";
+import { En } from "./En";
 
 type Mode = "interaktiv" | "drucken";
 
@@ -230,7 +231,7 @@ export function TestView({
           onClick={onReset}
           className="rounded-lg px-3 py-2 text-sm font-medium text-slate-700 ring-1 ring-slate-300 transition hover:bg-slate-100 dark:text-slate-200 dark:ring-slate-700 dark:hover:bg-slate-800"
         >
-          ← Neuer Test
+          ← Neuer Test <En>New test</En>
         </button>
         <div className="flex flex-wrap items-center gap-2">
           <div className="inline-flex rounded-lg bg-slate-100 p-1 dark:bg-slate-800">
@@ -238,13 +239,13 @@ export function TestView({
               active={mode === "interaktiv"}
               onClick={() => setMode("interaktiv")}
             >
-              Interaktiv
+              Interaktiv <En>Interactive</En>
             </ModeButton>
             <ModeButton
               active={mode === "drucken"}
               onClick={() => setMode("drucken")}
             >
-              Drucken / PDF
+              Drucken / PDF <En>Print / PDF</En>
             </ModeButton>
           </div>
           {mode === "drucken" && (
@@ -256,20 +257,28 @@ export function TestView({
                   checked={loesungenDrucken}
                   onChange={(e) => setLoesungenDrucken(e.target.checked)}
                 />
-                Lösungen anhängen
+                Lösungen anhängen <En>Include answers</En>
               </label>
               <button
                 onClick={handlePdf}
                 disabled={pdfLaedt}
                 className="rounded-lg bg-emerald-600 px-3 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:opacity-60"
               >
-                {pdfLaedt ? "PDF wird erstellt…" : "📄 PDF herunterladen"}
+                {pdfLaedt ? (
+                  <>
+                    PDF wird erstellt… <En hell>Creating PDF</En>
+                  </>
+                ) : (
+                  <>
+                    📄 PDF herunterladen <En hell>Download PDF</En>
+                  </>
+                )}
               </button>
               <button
                 onClick={() => window.print()}
                 className="rounded-lg bg-indigo-600 px-3 py-2 text-sm font-semibold text-white transition hover:bg-indigo-700"
               >
-                🖨️ Drucken
+                🖨️ Drucken <En hell>Print</En>
               </button>
             </>
           )}
@@ -305,9 +314,12 @@ export function TestView({
       {mode === "interaktiv" && !abgegeben && (
         <div className="no-print mb-5">
           <div className="mb-1 flex justify-between text-xs text-slate-500 dark:text-slate-400">
-            <span>Fortschritt</span>
             <span>
-              {beantwortet} von {paper.aufgaben.length} beantwortet
+              Fortschritt <En>Progress</En>
+            </span>
+            <span>
+              {beantwortet} von {paper.aufgaben.length} beantwortet{" "}
+              <En>answered</En>
             </span>
           </div>
           <div className="h-2 w-full overflow-hidden rounded-full bg-slate-200 dark:bg-slate-800">
@@ -348,7 +360,7 @@ export function TestView({
               }}
               className="w-full rounded-xl bg-emerald-600 px-4 py-3 font-semibold text-white shadow-md transition hover:bg-emerald-700 active:scale-[0.99]"
             >
-              Abgeben & auswerten
+              Abgeben & auswerten <En hell>Submit & check</En>
             </button>
           ) : (
             <div className="rounded-2xl bg-white p-6 text-center shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-800">
@@ -372,18 +384,18 @@ export function TestView({
                         Note {auswertung.note.note} ({auswertung.note.label}) ·{" "}
                         {auswertung.prozent} %
                         {gradedAnswers && (
-                          <span className="ml-2 text-xs text-slate-400">(vorläufig)</span>
+                          <span className="ml-2 text-xs text-slate-400">(vorläufig / preliminary)</span>
                         )}
                       </p>
                     </>
                   )}
                   {!auswertung.note && gradedAnswers === null && (
                     <p className="text-sm text-slate-600 dark:text-slate-300">
-                      wird bewertet…
+                      wird bewertet… <En>grading</En>
                     </p>
                   )}
                   <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
-                    {auswertung.erreicht} / {auswertung.autoPunkte} Punkte
+                    {auswertung.erreicht} / {auswertung.autoPunkte} Punkte <En>points</En>
                     {gradedAnswers === null &&
                       paper.aufgaben.some((a) => a.typ === "offen")
                       ? " (teilweise automatisch bewertet)"
@@ -393,7 +405,8 @@ export function TestView({
               ) : (
                 <>
                   <p className="text-2xl font-extrabold text-slate-900 dark:text-slate-100">
-                    {auswertung.richtig} von {auswertung.autoAnzahl} richtig
+                    {auswertung.richtig} von {auswertung.autoAnzahl} richtig{" "}
+                    <En>correct</En>
                   </p>
                   {auswertung.prozentAnzahl !== null && (
                     <p className="mt-2 text-lg font-bold text-indigo-600 dark:text-indigo-300">
@@ -404,12 +417,13 @@ export function TestView({
               )}
               {gradingError && (
                 <p className="mt-2 text-sm text-red-600 dark:text-red-400">
-                  ⚠️ Bewertung nicht möglich: {gradingError}
+                  ⚠️ Bewertung nicht möglich <En>Grading failed</En>: {gradingError}
                 </p>
               )}
               {auswertung.zuPruefen > 0 && !gradedAnswers && (
                 <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                  {auswertung.zuPruefen} offene Antwort(en) werden bewertet…
+                  {auswertung.zuPruefen} offene Antwort(en) werden bewertet…{" "}
+                  <En>grading open answers</En>
                 </p>
               )}
               {benotet && (
@@ -428,13 +442,13 @@ export function TestView({
                   }}
                   className="rounded-lg px-3 py-2 text-sm font-medium text-slate-700 ring-1 ring-slate-300 transition hover:bg-slate-100 dark:text-slate-200 dark:ring-slate-700 dark:hover:bg-slate-800"
                 >
-                  Nochmal versuchen
+                  Nochmal versuchen <En>Try again</En>
                 </button>
                 <button
                   onClick={onReset}
                   className="rounded-lg bg-indigo-600 px-3 py-2 text-sm font-semibold text-white transition hover:bg-indigo-700"
                 >
-                  Neuer Test
+                  Neuer Test <En hell>New test</En>
                 </button>
               </div>
             </div>
@@ -554,13 +568,23 @@ function InteractiveView({
             {abgegeben && (
               <div className="mt-3 rounded-lg bg-slate-50 p-3 text-sm dark:bg-slate-800/60">
                 <p className="font-semibold text-slate-700 dark:text-slate-200">
-                  {grade === "correct"
-                    ? "✅ Richtig"
-                    : grade === "partial"
-                      ? "🟡 Teilweise richtig"
-                      : grade === "review"
-                        ? "🔍 Selbst prüfen"
-                        : "❌ Nicht korrekt"}
+                  {grade === "correct" ? (
+                    <>
+                      ✅ Richtig <En>Correct</En>
+                    </>
+                  ) : grade === "partial" ? (
+                    <>
+                      🟡 Teilweise richtig <En>Partly correct</En>
+                    </>
+                  ) : grade === "review" ? (
+                    <>
+                      🔍 Selbst prüfen <En>Check yourself</En>
+                    </>
+                  ) : (
+                    <>
+                      ❌ Nicht korrekt <En>Incorrect</En>
+                    </>
+                  )}
                 </p>
                 {/* Feedback von Claude-Bewertung für offene Aufgaben. */}
                 {gradedAnswers && i in gradedAnswers && (
@@ -571,7 +595,9 @@ function InteractiveView({
                 {a.typ !== "offen" && (
                   <>
                     <p className="mt-1 text-slate-700 dark:text-slate-200">
-                      <span className="font-medium">Lösung:</span>{" "}
+                      <span className="font-medium">
+                        Lösung <En>Answer</En>:
+                      </span>{" "}
                       {a.typ === "multiple_choice" && a.optionen.length > 0
                         ? (() => {
                             const idx = a.optionen.findIndex(
@@ -591,11 +617,15 @@ function InteractiveView({
                 {a.typ === "offen" && !(gradedAnswers && i in gradedAnswers) && (
                   <>
                     <p className="mt-1 text-slate-700 dark:text-slate-200">
-                      <span className="font-medium">Erwartungshorizont:</span>{" "}
+                      <span className="font-medium">
+                        Erwartungshorizont <En>Model answer</En>:
+                      </span>{" "}
                       {a.loesung}
                     </p>
                     <p className="mt-1 text-slate-500 dark:text-slate-400">
-                      <span className="font-medium">Bewertungskriterien: </span>
+                      <span className="font-medium">
+                        Bewertungskriterien <En>Grading criteria</En>:{" "}
+                      </span>
                       {a.erklaerung}
                     </p>
                   </>
@@ -736,7 +766,10 @@ function AnswerInput({
                 : "text-slate-700 ring-slate-300 hover:bg-slate-100 dark:text-slate-200 dark:ring-slate-700 dark:hover:bg-slate-800")
             }
           >
-            {opt}
+            {opt}{" "}
+            <En hell={value === opt}>
+              {opt === "Richtig" ? "True" : "False"}
+            </En>
           </button>
         ))}
       </div>
@@ -749,7 +782,7 @@ function AnswerInput({
       <textarea
         rows={6}
         className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-900 focus:outline focus:outline-2 focus:outline-indigo-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
-        placeholder="Deine Ausarbeitung…"
+        placeholder="Deine Ausarbeitung… (your answer)"
         value={value ?? ""}
         onChange={(e) => onChange(e.target.value)}
         disabled={disabled}
@@ -762,7 +795,7 @@ function AnswerInput({
     <input
       type="text"
       className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-900 focus:outline focus:outline-2 focus:outline-indigo-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
-      placeholder="Deine Antwort…"
+      placeholder="Deine Antwort… (your answer)"
       value={value ?? ""}
       onChange={(e) => onChange(e.target.value)}
       disabled={disabled}
