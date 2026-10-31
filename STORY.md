@@ -135,7 +135,17 @@ answers that are "mostly correct with small gaps" (70–80%) versus "partially c
 both points and percentage for graded answers, making the assessment more transparent 
 (e.g., "4 / 5 P (80%)").
 
-## 19. What's next
+## 19. Sticking to the real syllabus
+My son spotted test questions that weren't in the chapter he'd picked. So the
+sub-topics for Physik Klasse 8 now come straight from **his book's table of
+contents**, and every test is held to the **official LehrplanPLUS scope** of its
+topic (Klassen 5–10, most subjects), so nothing from later chapters sneaks in.
+Calculations and short answers written differently ("0,250 A" vs. "0,25 A") are now
+**graded by the AI** instead of landing on "Selbst prüfen", every control shows its
+**English name** in small grey text, and downloaded PDFs finally print **ρ, Δ and
+chemical formulas** like Ca²⁺ or SO₄²⁻ correctly.
+
+## 20. What's next
 Still on the list: a **public web address** so friends can use it too, a **more
 durable history** that isn't tied to a single browser, and product ideas like
 **monetization** and **free sample tests**.

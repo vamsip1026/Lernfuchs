@@ -1,5 +1,6 @@
 import {
   Document,
+  Font,
   Page,
   pdf,
   StyleSheet,
@@ -16,19 +17,40 @@ import type { Aufgabe, TestPaper } from "./schema";
 
 const BUCH = ["A", "B", "C", "D", "E", "F"];
 
+// Eingebettete Unicode-Schrift: Helvetica (PDF-Standard) kennt kein ρ, Δ, Cl⁻,
+// Ca²⁺ usw. Fett zeigt vorerst auf dieselbe Datei, bis DejaVuSans-Bold.ttf da ist.
+const SCHRIFT = "DejaVu";
+let schriftRegistriert = false;
+
+/** Registriert die Schrift; `basis` = URL bzw. Pfad zum Ordner public/fonts. */
+export function registriereSchrift(basis: string) {
+  if (schriftRegistriert) return;
+  const normal = `${basis}/DejaVuSans.ttf`;
+  Font.register({
+    family: SCHRIFT,
+    fonts: [
+      { src: normal },
+      { src: normal, fontWeight: "bold" },
+    ],
+  });
+  // Keine automatische Silbentrennung (zerlegt sonst Formeln wie SO₄²⁻).
+  Font.registerHyphenationCallback((wort) => [wort]);
+  schriftRegistriert = true;
+}
+
 const styles = StyleSheet.create({
   page: {
     padding: 40,
     fontSize: 11,
-    fontFamily: "Helvetica",
+    fontFamily: SCHRIFT,
     color: "#111111",
     lineHeight: 1.4,
   },
-  title: { fontSize: 16, fontFamily: "Helvetica-Bold", marginBottom: 4 },
+  title: { fontSize: 16, fontWeight: "bold", marginBottom: 4 },
   meta: { fontSize: 9, color: "#444444", marginBottom: 2 },
   qItem: { marginTop: 12 },
   qHead: { flexDirection: "row", justifyContent: "space-between" },
-  qText: { fontFamily: "Helvetica-Bold", flex: 1, paddingRight: 8 },
+  qText: { fontWeight: "bold", flex: 1, paddingRight: 8 },
   points: { fontSize: 9, color: "#555555" },
   option: { marginLeft: 14, marginTop: 2 },
   line: {
@@ -45,9 +67,9 @@ const styles = StyleSheet.create({
     fontSize: 8,
     color: "#555555",
   },
-  solTitle: { fontSize: 13, fontFamily: "Helvetica-Bold", marginBottom: 8 },
+  solTitle: { fontSize: 13, fontWeight: "bold", marginBottom: 8 },
   solItem: { marginBottom: 6, fontSize: 10 },
-  bold: { fontFamily: "Helvetica-Bold" },
+  bold: { fontWeight: "bold" },
   grau: { color: "#555555" },
 });
 
@@ -153,6 +175,7 @@ function TestDocument({
 
 /** Erstellt die PDF und löst den Download im Browser aus. */
 export async function downloadTestPdf(paper: TestPaper, mitLoesungen: boolean) {
+  registriereSchrift(`${window.location.origin}/fonts`);
   const blob = await pdf(
     <TestDocument paper={paper} mitLoesungen={mitLoesungen} />,
   ).toBlob();
