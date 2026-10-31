@@ -617,6 +617,12 @@ export default function Home() {
             </>
           )}
         </button>
+        {!loading && (
+          <p className="text-center text-xs text-slate-500 dark:text-slate-400">
+            🤖 Wird von KI (Claude) erstellt – bitte Aufgaben kurz prüfen.{" "}
+            <En>Created by AI (Claude), please check the questions.</En>
+          </p>
+        )}
         {loading && (
           <p className="text-center text-sm text-slate-500 dark:text-slate-400">
             Die Aufgaben werden generiert – das kann 10–30 Sekunden dauern.{" "}
