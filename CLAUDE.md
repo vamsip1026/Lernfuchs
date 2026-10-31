@@ -123,6 +123,12 @@ history.
 - **Durable / portable history** — the Verlauf is browser-local (localStorage),
   per-device, lost if browser data is cleared; back it with files or a database.
 - **Refine the Prüfungsart names/labels** — wording still being tuned.
+- **LehrplanPLUS scope for Englisch, Französisch, Religion/Ethik (Kl. 8)** —
+  these still generate without a `LEHRPLAN` entry in `lib/curriculum.ts`
+  (the other Kl. 8 subjects have one). The LehrplanPLUS pages for the
+  languages wouldn't load by URL; a photo of the Green Line / Découvertes
+  Inhaltsverzeichnis would do instead. Other Klassen (5–7, 9, 10) have no
+  scope yet either.
 - **Possible later** — Informatik (NTG 9/10) & Politik und Gesellschaft (Kl. 10)
   subjects; AI grading of free-text/offen answers.
 
