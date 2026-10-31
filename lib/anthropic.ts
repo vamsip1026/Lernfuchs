@@ -202,8 +202,8 @@ export async function gradeAnswers(
 
   const answerTexts = answers
     .map(
-      (a, i) =>
-        `\n--- Aufgabe ${i + 1} (${a.punkte} P) ---\n` +
+      (a) =>
+        `\n--- Aufgabe-ID ${a.aufgabeIndex} (${a.punkte} P) ---\n` +
         (a.frage ? `Aufgabe:\n${a.frage}\n\n` : "") +
         `Schülerantwort:\n${a.antwort}\n\n` +
         `Erwartungshorizont / Musterlösung:\n${a.loesung}\n\n` +
@@ -229,7 +229,7 @@ export async function gradeAnswers(
     ``,
     answerTexts,
     ``,
-    `Antworte strukturiert als JSON mit Punkten (ganzzahl, 0-100) und Feedback.`,
+    `Antworte strukturiert als JSON: genau ein Ergebnis je Aufgabe, "aufgabeIndex" = die oben genannte Aufgabe-ID (unverändert übernehmen), "punkte" = Prozent (ganzzahlig, 0-100) und "feedback".`,
   ].join("\n");
 
   const response = await client.beta.messages.parse({
@@ -242,11 +242,11 @@ export async function gradeAnswers(
   const graded = response.parsed_output?.results ?? [];
 
   // Stelle sicher, dass jede Aufgabe ein Ergebnis hat, sonst fallback auf 0 Punkte.
-  return answers.map((a, i) => {
-    const result = graded.find((r) => r.aufgabeIndex === i);
+  return answers.map((a) => {
+    const result = graded.find((r) => r.aufgabeIndex === a.aufgabeIndex);
     if (!result) {
       return {
-        aufgabeIndex: i,
+        aufgabeIndex: a.aufgabeIndex,
         punkte: 0,
         feedback: "Bewertung fehlgeschlagen.",
       };
@@ -256,7 +256,7 @@ export async function gradeAnswers(
     const pct = Math.min(100, Math.max(0, result.punkte));
     const final = Math.round(((a.punkte * pct) / 100) * 2) / 2;
     return {
-      aufgabeIndex: i,
+      aufgabeIndex: a.aufgabeIndex,
       punkte: final,
       feedback: result.feedback,
     };

@@ -130,7 +130,7 @@ export function TestView({
     const bewertungen = paper.aufgaben.map((a, i) => {
       // Nutze KI-Bewertung falls vorhanden (offene Aufgaben, Rechnen, Kurzantwort).
       if (gradedAnswers && i in gradedAnswers) {
-        const punkte = gradedAnswers[i].punkte;
+        const punkte = Math.min(Math.max(gradedAnswers[i].punkte, 0), a.punkte);
         const grade: Grade =
           punkte >= a.punkte ? "correct" : punkte > 0 ? "partial" : "incorrect";
         return { grade, punkte };
