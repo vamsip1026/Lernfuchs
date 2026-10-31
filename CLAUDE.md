@@ -131,9 +131,14 @@ history.
 - **App Themen not in the Lehrplan** — Deutsch 7 "Aktiv und Passiv
   (Einführung)", Deutsch 9 "Bewerbung und Lebenslauf" (Lehrplan: only the
   Bewerbungsgespräch) and "Zeichensetzung". Decide whether to keep, rename or drop.
+- **Bold text in the PDF** — `public/fonts` only has `DejaVuSans.ttf`; bold
+  currently maps to the regular file in `registriereSchrift` (`lib/pdf.tsx`).
+  Add `DejaVuSans-Bold.ttf` (full `dejavu-fonts-ttf-2.37.zip`) and point the bold
+  entry at it.
 - **Possible later** — Informatik (NTG 9/10) & Politik und Gesellschaft (Kl. 10)
-  subjects; AI grading of free-text/offen answers.
+  subjects.
 
 ### Product / business (future)
-- **Monetization** — decide a business model.
+- **Monetization** — decide a business model. Note: Vercel Hobby is for
+  non-commercial use only; charging money requires Vercel Pro (~$20/month).
 - **Free sample tests** — a few free, then paid (freemium; tied to monetization).
