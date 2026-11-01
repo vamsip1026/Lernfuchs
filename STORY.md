@@ -145,10 +145,16 @@ Calculations and short answers written differently ("0,250 A" vs. "0,25 A") are 
 **English name** in small grey text, and downloaded PDFs finally print **ρ, Δ and
 chemical formulas** like Ca²⁺ or SO₄²⁻ correctly.
 
-## 20. What's next
-Still on the list: a **public web address** so friends can use it too, a **more
-durable history** that isn't tied to a single browser, and product ideas like
-**monetization** and **free sample tests**.
+## 20. Online for real
+Lernfuchs left my laptop: it now runs at its own **public web address** on Vercel,
+so my son can practise on his iPad or phone anywhere. Every change we push to
+GitHub goes live by itself a minute later. Two locks keep it safe: a **passcode**
+only the family knows, and a **monthly spending cap** on the AI account, which is
+now a personal one, separate from work.
+
+## 21. What's next
+Still on the list: a **more durable history** that isn't tied to a single
+browser, and product ideas like **monetization** and **free sample tests**.
 
 ---
 

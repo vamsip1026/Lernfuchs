@@ -26,6 +26,20 @@ The server reads env vars only at startup — restart after changing them.
 > file-watcher limit (EMFILE); use `npm run build && npm start` there. On a
 > normal machine `npm run dev` works fine.
 
+## Live deployment (Vercel)
+
+- **URL:** https://lernfuchs-mu.vercel.app (Vercel Hobby, personal account,
+  linked to GitHub `vamsip1026/Lernfuchs`).
+- **Every push to `main` deploys to production automatically** within ~2 min, so
+  only push changes that were checked locally (`npx tsc --noEmit`, and a
+  production build for bigger changes).
+- **Env vars live in Vercel** (Project → Settings → Environment Variables,
+  "Production & Preview"): `ANTHROPIC_API_KEY` (personal Anthropic account, key
+  "Lernfuchs Vercel", monthly spend cap set), `ANTHROPIC_MODEL=claude-sonnet-5-5`,
+  `APP_PASSWORT` (passcode gate on). Changing a variable needs a **Redeploy**.
+- Locally, `.env.local` still uses a different key (work account); no passcode.
+- Hobby = non-commercial only; functions may run up to 300 s (routes use ≤ 120 s).
+
 ## Stack
 
 - **Next.js** (App Router, TypeScript) + **Tailwind CSS v4**.
@@ -111,15 +125,8 @@ The server reads env vars only at startup — restart after changing them.
 Only open items live here. **Completed work is chronicled in `STORY.md`**;
 current capabilities are under "Features implemented" above.
 
-**Recommended order:** 1) deploy to a public URL → 2) durable server-side
-history.
+**Recommended next:** durable server-side history.
 
-- **Deploy to a public URL (Vercel)** — the **shared passcode gate is built**
-  (set env `APP_PASSWORT` in Vercel to activate; `lib/auth.ts` + client prompt in
-  `app/page.tsx`; inert when the var is unset, e.g. locally). Still to do at
-  deploy: set a **monthly spend cap** in the Anthropic Console, pick the default
-  model (Sonnet recommended), and import the repo into Vercel with env vars
-  `ANTHROPIC_API_KEY` (+ optional `ANTHROPIC_MODEL`, `APP_PASSWORT`).
 - **Durable / portable history** — the Verlauf is browser-local (localStorage),
   per-device, lost if browser data is cleared; back it with files or a database.
 - **Refine the Prüfungsart names/labels** — wording still being tuned.
