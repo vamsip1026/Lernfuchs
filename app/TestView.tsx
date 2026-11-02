@@ -11,6 +11,7 @@ import {
 import { noteFuerProzent, notenschluesselText } from "@/lib/noten";
 import type { Aufgabe, TestPaper } from "@/lib/schema";
 import { ermutigung, fachStil } from "@/lib/ui";
+import { apiFetch } from "@/lib/api";
 import { En } from "./En";
 
 type Mode = "interaktiv" | "drucken";
@@ -188,10 +189,7 @@ export function TestView({
     if (toGrade.length === 0) return;
 
     try {
-      const response = await fetch("/api/grade", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+      const response = await apiFetch("/api/grade", {
           answers: toGrade.map((x) => ({
             aufgabeIndex: x.aufgabeIndex,
             frage: x.aufgabe.frage,
@@ -200,7 +198,6 @@ export function TestView({
             erklaerung: x.aufgabe.erklaerung,
             punkte: x.aufgabe.punkte,
           })),
-        }),
       });
 
       if (!response.ok) {

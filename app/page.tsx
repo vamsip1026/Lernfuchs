@@ -22,6 +22,7 @@ import {
   speichereTest,
   type VerlaufEintrag,
 } from "@/lib/verlauf";
+import { apiFetch, PASS_KEY } from "@/lib/api";
 import { En } from "./En";
 import { TestView } from "./TestView";
 
@@ -77,22 +78,6 @@ function neueId(): string {
     : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
 }
 
-const PASS_KEY = "app_passwort";
-
-// POST-Helfer: hängt den gespeicherten Zugangscode (falls vorhanden) als Header
-// an. Der Schutz ist nur aktiv, wenn der Server APP_PASSWORT gesetzt hat.
-async function apiFetch(url: string, body: unknown): Promise<Response> {
-  const code =
-    typeof window !== "undefined" ? localStorage.getItem(PASS_KEY) : null;
-  return fetch(url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      ...(code ? { "x-app-passwort": code } : {}),
-    },
-    body: JSON.stringify(body),
-  });
-}
 
 export default function Home() {
   const [klasse, setKlasse] = useState<number>(8);
@@ -267,6 +252,10 @@ export default function Home() {
               type="text"
               className="input"
               placeholder="Code von Vamsi (code from Vamsi)"
+              autoCapitalize="none"
+              autoCorrect="off"
+              autoComplete="off"
+              spellCheck={false}
               value={passcode}
               onChange={(e) => {
                 setPasscode(e.target.value);
