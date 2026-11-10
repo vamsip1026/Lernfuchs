@@ -217,11 +217,13 @@ const KLASSE_8: Fach[] = [
     name: "Französisch",
     lehrwerk: "Découvertes (Klett)",
     themen: [
-      "Passé composé und Imparfait",
-      "Futur simple",
-      "Objektpronomen (COD/COI)",
-      "Relativsätze (qui, que, où)",
-      "Wortschatz: Alltag und Freizeit",
+      // Unités laut Inhaltsverzeichnis Découvertes (Band für Klasse 8).
+      "Unité 1: Motivés? (Mes amis, moi et nos projets)",
+      "Unité 2: Soupçons (La lecture et moi)",
+      "Unité 3: Lille–Marseille en cinq heures (Deux villes en France)",
+      "Unité 4: Bon séjour en Normandie! (Les échanges et moi)",
+      "Unité 5: Bienvenue au Québec (Découvrir la région francophone du Canada)",
+      "Unité 6: Aventures dans le Sud (Des vacances en PACA et en Occitanie)",
     ],
   },
   {
@@ -659,6 +661,67 @@ const UNTERTHEMEN: Record<string, string[]> = {
     "Linsen machen Bilder",
     "Das Auge, ein optisches System",
   ],
+  // Klasse 8 Französisch: Ateliers laut Inhaltsverzeichnis Découvertes.
+  "8|Französisch|Unité 1: Motivés? (Mes amis, moi et nos projets)": [
+    "Von den Ferien erzählen (passé composé, Wiederholung)",
+    "Pläne für das neue Schuljahr; Vorsilbe re-/ré-, la rentrée",
+    "Die Verben rire und croire",
+    "Infinitivanschlüsse mit à und de",
+    "Verneinung: ne … rien, ne … personne, rien ne …, personne ne …",
+    "Ratschläge geben, Meinung äußern und begründen, Vorschläge machen",
+    "Handyverbot an Schulen: Pro und Contra",
+    "Médiation: Inhalt einer Schulhomepage wiedergeben",
+  ],
+  "8|Französisch|Unité 2: Soupçons (La lecture et moi)": [
+    "Imparfait und passé composé (Wiederholung)",
+    "Le plus-que-parfait",
+    "Accord du participe passé (nur erkennen)",
+    "Das Verb courir",
+    "Aussprache [ʒ], [g], [k] und [s]",
+    "Wortfamilien; neue Wörter erschließen",
+    "Über Ereignisse berichten, Handlungsabläufe wiedergeben",
+    "Einen Text zusammenfassen (résumé)",
+    "Médiation: einen Zeitungsbericht zusammenfassen",
+  ],
+  "8|Französisch|Unité 3: Lille–Marseille en cinq heures (Deux villes en France)": [
+    "La mise en relief: c'est … qui / c'est … que",
+    "être en train de, venir de, avant de",
+    "La question par inversion",
+    "Städte verstehen und vergleichen (Lille, Marseille, TGV)",
+    "Über das Programm bei einem Stadtbesuch sprechen",
+    "Eine Informationsbroschüre über eine Stadt schreiben",
+    "Médiation: einen Text zur Migration in Marseille übertragen",
+  ],
+  "8|Französisch|Unité 4: Bon séjour en Normandie! (Les échanges et moi)": [
+    "Fragen mit qu'est-ce qui …? und qui est-ce que …?",
+    "Les verbes pronominaux au passé",
+    "Les niveaux de langue; les faux amis",
+    "Einen Austausch vorbereiten; Reisetagebuch schreiben",
+    "Normandie und Mont-Saint-Michel",
+    "Französisches und deutsches Schulsystem vergleichen",
+    "Beim Arzt: Arztbesuch meistern, Verständnisprobleme überbrücken",
+    "Médiation: beim Arztbesuch dolmetschen",
+  ],
+  "8|Französisch|Unité 5: Bienvenue au Québec (Découvrir la région francophone du Canada)": [
+    "Ländernamen und Präpositionen (en, au, aux)",
+    "Les adverbes",
+    "Les degrés de l'adverbe (comparatif, superlatif)",
+    "Das Verb mourir",
+    "Wortschatz: la géographie; le québécois",
+    "Québec, die Partnerregion Bayerns",
+    "Ein Foto oder eine Karikatur beschreiben",
+    "Nunavik: ein Ereignis verstehen und wiedergeben",
+    "Médiation: Online-Artikel über eine kanadische Sängerin",
+  ],
+  "8|Französisch|Unité 6: Aventures dans le Sud (Des vacances en PACA et en Occitanie)": [
+    "Le pronom interrogatif lequel",
+    "Les régions en France",
+    "Schatzsuche in Carcassonne (Ausflugsprogramm wiedergeben)",
+    "Safari in der Camargue",
+    "Pont du Gard und Tour de France",
+    "Workcamp in der Region PACA",
+    "Über verschiedene Ferienarten diskutieren",
+  ],
 };
 
 // Verbindlicher Stoffrahmen je Thema aus dem LehrplanPLUS Bayern (Gymnasium),
@@ -740,6 +803,19 @@ const LEHRPLAN: Record<string, string> = {
     "Funktion von Genus Verbi (Aktiv, Passiv) beschreiben und zur sprachlichen Differenzierung einsetzen.",
   "8|Deutsch|Konjunktiv und indirekte Rede":
     "Funktion des Modus beschreiben; Formen der Redewiedergabe (Paraphrase, indirekte Rede, Infinitivkonstruktion, Modalverben) beim Übernehmen von Informationen aus Texten verwenden.",
+  // Französisch 8: Umfang laut Inhaltsverzeichnis Découvertes (nicht LehrplanPLUS).
+  "8|Französisch|Unité 1: Motivés? (Mes amis, moi et nos projets)":
+    "Wortschatz Ferien, Schuljahresbeginn (la rentrée), Pläne, Vorsilbe re-/ré-; Meinung äußern und begründen, Ratschläge geben, Vorschläge machen; Handys in der Schule (Pro und Contra). Grammatik: passé composé (Wiederholung), Verben rire und croire, Infinitivanschlüsse mit à und de, Verneinung ne … rien / ne … personne / rien ne … / personne ne …. Kein plus-que-parfait, keine mise en relief (kommen erst in späteren Unités).",
+  "8|Französisch|Unité 2: Soupçons (La lecture et moi)":
+    "Lesen: Geschichten verstehen (Diebstahl in der Schule, gefährliche Entdeckung); Ereignisse berichten, Handlungsabläufe wiedergeben, Text zusammenfassen (résumé), Wortfamilien, neue Wörter erschließen; Notensystem in Frankreich. Grammatik: imparfait und passé composé (Wiederholung), plus-que-parfait, Verb courir; accord du participe passé nur rezeptiv (erkennen, nicht selbst bilden lassen). Keine mise en relief, keine question par inversion (erst Unité 3).",
+  "8|Französisch|Unité 3: Lille–Marseille en cinq heures (Deux villes en France)":
+    "Städte in Frankreich (Lille, Marseille, TGV): Informationen über Städte verstehen und vergleichen, Programm beim Stadtbesuch, Informationsbroschüre, Text zur Migration in Marseille. Wortschatz: être en train de, venir de, avant de. Grammatik: mise en relief c'est … qui / c'est … que, question par inversion. Früherer Stoff nur als Wiederholung.",
+  "8|Französisch|Unité 4: Bon séjour en Normandie! (Les échanges et moi)":
+    "Schüleraustausch in der Normandie (Mont-Saint-Michel), Reisetagebuch, französisches vs. deutsches Schulsystem, Arztbesuch in Frankreich. Wortschatz: niveaux de langue, faux amis, Verständnisschwierigkeiten überbrücken. Grammatik: Fragen mit qu'est-ce qui …? und qui est-ce que …?, verbes pronominaux au passé. Kein lequel, kein Steigern von Adverbien (spätere Unités).",
+  "8|Französisch|Unité 5: Bienvenue au Québec (Découvrir la région francophone du Canada)":
+    "Québec und die Frankophonie, Partnerregion Bayerns, Nunavik; Foto und Karikatur beschreiben. Wortschatz: Ländernamen, la géographie, le québécois. Grammatik: Präpositionen bei Ländernamen, Adverbien, degrés de l'adverbe (comparatif, superlatif), Verb mourir. Kein lequel (erst Unité 6).",
+  "8|Französisch|Unité 6: Aventures dans le Sud (Des vacances en PACA et en Occitanie)":
+    "Ferien im Süden Frankreichs (PACA, Occitanie): Regionen Frankreichs, Carcassonne, Camargue, Pont du Gard, Tour de France, Workcamp, Ferienarten diskutieren. Grammatik: pronom interrogatif lequel. Früherer Stoff nur als Wiederholung.",
   "8|Deutsch|Zeichensetzung (Kommasetzung bei Gliedsätzen)":
     "Regeln der Zeichensetzung anwenden, u. a. beim Zitieren; orthografisch und grammatikalisch weitgehend richtig schreiben.",
 };
