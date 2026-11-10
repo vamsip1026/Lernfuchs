@@ -93,12 +93,6 @@ export const TestPaperSchema = z.object({
 
 export type TestPaper = z.infer<typeof TestPaperSchema>;
 
-/** Text einer Aufgabe – alte Verlauf-Einträge haben noch keine Texte. */
-export function textFuer(paper: TestPaper, a: Aufgabe): LeseHoerText | null {
-  const i = a.text ?? -1;
-  return i >= 0 ? ((paper.texte ?? [])[i] ?? null) : null;
-}
-
 /** Ein Inhalts-Element: ein Thema, ganz oder auf Unterthemen eingegrenzt. */
 export const InhaltSchema = z.object({
   thema: z.string().min(1),

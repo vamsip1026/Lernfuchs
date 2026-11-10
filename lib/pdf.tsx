@@ -12,7 +12,8 @@ import { lueckenLoesungen, normalize } from "./luecken";
 import { notenschluesselText } from "./noten";
 import { richtigFalschText } from "./ui";
 import { Fragment } from "react";
-import { type Aufgabe, type TestPaper, textFuer } from "./schema";
+import type { Aufgabe, TestPaper } from "./schema";
+import { textFuer } from "./texte";
 
 // Dieses Modul wird nur dynamisch (beim Klick) geladen, damit @react-pdf nicht
 // im SSR-/Initial-Bundle landet.

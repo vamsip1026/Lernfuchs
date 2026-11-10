@@ -9,7 +9,8 @@ import {
   normalize,
 } from "@/lib/luecken";
 import { noteFuerProzent, notenschluesselText } from "@/lib/noten";
-import { type Aufgabe, type LeseHoerText, type TestPaper, textFuer } from "@/lib/schema";
+import type { Aufgabe, LeseHoerText, TestPaper } from "@/lib/schema";
+import { textFuer } from "@/lib/texte";
 import { Hoertext } from "./Hoertext";
 import {
   ermutigung,
