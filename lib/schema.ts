@@ -46,9 +46,30 @@ export const AufgabeSchema = z.object({
   punkte: z
     .number()
     .describe("Punkte für diese Aufgabe (ganzzahlig, meist 1–10, längere Schreibaufgaben bis 20)"),
+  // Bezug auf einen Lese-/Hörtext in "texte" (Index), -1 = kein Text.
+  text: z
+    .number()
+    .describe(
+      'Index des zugehörigen Textes in "texte" (Lese- oder Hörverstehen), sonst -1',
+    ),
 });
 
 export type Aufgabe = z.infer<typeof AufgabeSchema>;
+
+/** Lese- oder Hörtext, auf den sich mehrere Aufgaben beziehen. */
+export const TextSchema = z.object({
+  art: z
+    .enum(["lesen", "hoeren"])
+    .describe('"lesen" = Lesetext (wird angezeigt), "hoeren" = Hörtext (wird vorgelesen)'),
+  titel: z.string().describe("Kurzer Titel des Textes in der Zielsprache"),
+  inhalt: z
+    .string()
+    .describe(
+      'Der Text in der Zielsprache. Dialoge zeilenweise als "Name: Satz" (Zeilenumbruch "\\n").',
+    ),
+});
+
+export type LeseHoerText = z.infer<typeof TextSchema>;
 
 export const TestPaperSchema = z.object({
   titel: z.string().describe("Titel des Tests"),
@@ -63,10 +84,20 @@ export const TestPaperSchema = z.object({
   bearbeitungszeit: z
     .string()
     .describe("Empfohlene Bearbeitungszeit, z. B. 'ca. 20 Minuten'"),
+  // Lese-/Hörtexte (nur bei Lese- oder Hörverstehen, sonst leeres Array).
+  texte: z
+    .array(TextSchema)
+    .describe("Lese- oder Hörtexte, auf die sich Aufgaben beziehen; sonst leeres Array"),
   aufgaben: z.array(AufgabeSchema).min(1),
 });
 
 export type TestPaper = z.infer<typeof TestPaperSchema>;
+
+/** Text einer Aufgabe – alte Verlauf-Einträge haben noch keine Texte. */
+export function textFuer(paper: TestPaper, a: Aufgabe): LeseHoerText | null {
+  const i = a.text ?? -1;
+  return i >= 0 ? ((paper.texte ?? [])[i] ?? null) : null;
+}
 
 /** Ein Inhalts-Element: ein Thema, ganz oder auf Unterthemen eingegrenzt. */
 export const InhaltSchema = z.object({

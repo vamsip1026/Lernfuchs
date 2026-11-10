@@ -3,6 +3,8 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   AUFGABENFORMATE,
+  TEXT_FAECHER,
+  TEXT_FORMATE,
   DEFAULT_AUFGABENFORMAT,
   DEFAULT_PRUEFUNGSART,
   DEFAULT_SCHWIERIGKEIT,
@@ -51,6 +53,8 @@ const EN: Record<string, string> = {
   rechnen: "Calculations",
   lueckentext: "Fill in the blanks",
   richtig_falsch: "True / False",
+  leseverstehen: "Reading comprehension",
+  hoerverstehen: "Listening comprehension",
   leicht: "Easy",
   mittel: "Medium",
   schwer: "Hard",
@@ -111,6 +115,14 @@ export default function Home() {
   }, []);
 
   const faecher = useMemo(() => faecherFuerKlasse(klasse), [klasse]);
+  // Lese-/Hörverstehen nur in den Fremdsprachen anbieten.
+  const formate = AUFGABENFORMATE.filter(
+    (f) => !TEXT_FORMATE.includes(f.value) || TEXT_FAECHER.includes(fach),
+  );
+  const formatGueltig = formate.some((f) => f.value === aufgabenformat);
+  useEffect(() => {
+    if (!formatGueltig) setAufgabenformat(DEFAULT_AUFGABENFORMAT);
+  }, [formatGueltig]);
   const themen = useMemo(() => themenFuer(klasse, fach), [klasse, fach]);
 
   // Noch nicht hinzugefügte Themenvorschläge (für das Add-Dropdown).
@@ -575,7 +587,7 @@ export default function Home() {
               value={aufgabenformat}
               onChange={(e) => setAufgabenformat(e.target.value)}
             >
-              {AUFGABENFORMATE.map((f) => (
+              {formate.map((f) => (
                 <option key={f.value} value={f.value}>
                   {mitEn(f.label, f.value)}
                 </option>

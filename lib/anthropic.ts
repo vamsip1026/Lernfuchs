@@ -45,6 +45,19 @@ function formatHinweis(value: string): string {
   if (value === "automatisch") {
     return "Wähle die Aufgabenformate passend zur Prüfungsart und zum Fach (sinnvolle Mischung aus Multiple Choice, Kurzantwort, Rechenaufgaben, Lückentext, Richtig/Falsch und – bei langen offenen Aufgaben – 'offen').";
   }
+  if (value === "leseverstehen") {
+    return [
+      `Leseverstehen: Schreibe genau einen Lesetext (Eintrag in "texte" mit art "lesen", ca. 150–250 Wörter) in der Zielsprache, passend zur Klassenstufe und zu Wortschatz und Grammatik der genannten Inhalte (z. B. Blogeintrag, E-Mail, Zeitungsartikel, kurze Geschichte).`,
+      `Danach 5–8 Aufgaben zum Text mit "text": 0 (Mischung aus multiple_choice, richtig_falsch und kurzantwort; Fragen und Antworten in der Zielsprache). Die Aufgaben müssen mit dem Text lösbar sein.`,
+    ].join(" ");
+  }
+  if (value === "hoerverstehen") {
+    return [
+      `Hörverstehen: Schreibe genau einen Hörtext (Eintrag in "texte" mit art "hoeren", ca. 100–180 Wörter) in der Zielsprache, gesprochene Sprache, passend zur Klassenstufe und zu Wortschatz und Grammatik der genannten Inhalte. Am besten ein Dialog mit zwei Personen, jede Zeile als "Name: Satz" in einer eigenen Zeile; sonst ein Monolog (Durchsage, Sprachnachricht).`,
+      `Der Text wird dem Schüler von einer Computerstimme vorgelesen und ist nicht sichtbar: keine Abkürzungen, keine Sonderzeichen, Zahlen gut aussprechbar.`,
+      `Danach 5–8 Aufgaben mit "text": 0 (multiple_choice, richtig_falsch, kurzantwort; in der Zielsprache), die allein durch Zuhören lösbar sind (nicht nach Zeilen oder Schreibweisen fragen). Die Aufgabentexte dürfen den Hörtext nicht wiedergeben.`,
+    ].join(" ");
+  }
   const label =
     AUFGABENFORMATE.find((f) => f.value === value)?.label ?? value;
   return `Verwende ausschließlich Aufgaben vom Typ "${label}" (${value}).`;
@@ -125,6 +138,8 @@ function buildPrompt(req: GenerateRequest): string {
     ``,
     `Lückentext (Typ "lueckentext"): Markiere jede Lücke im Aufgabentext mit genau "___" (drei Unterstriche). Jede Lücke nimmt genau ein Wort bzw. einen kurzen Ausdruck auf – bei zweiteiligen Formen (z. B. "ne ... jamais") zwei getrennte Lücken. Fülle "luecken" mit genau einem Eintrag pro Lücke in derselben Reihenfolge; jeder Eintrag listet alle akzeptierten Schreibweisen (z. B. ["n'", "ne"]). "loesung" enthält zusätzlich die vollständige Lösung als lesbaren Text. Bei mehreren Teilsätzen steht jeder Teilsatz in einer eigenen Zeile (Zeilenumbruch "\\n").`,
     ``,
+    `Lese-/Hörtexte: Nur bei Leseverstehen oder Hörverstehen wird "texte" gefüllt und "text" der Aufgaben auf den Index gesetzt; sonst "texte": [] und bei jeder Aufgabe "text": -1.`,
+    ``,
     `Lange, offene Aufgaben (Aufsatz, Erörterung, offene Sachaufgabe) als Typ "offen": Dort enthält "loesung" einen Erwartungshorizont bzw. eine Musterlösung und "erklaerung" die Bewertungskriterien.`,
     ``,
     `Gib außerdem eine passende empfohlene Bearbeitungszeit im Feld "bearbeitungszeit" an.`,
@@ -156,6 +171,11 @@ export async function generateTestPaper(
   }
   // Thema deterministisch als Umfangs-Zusammenfassung setzen (Header/Verlauf/PDF).
   paper.thema = inhalteSummary(req.inhalte);
+  paper.texte = paper.texte ?? [];
+  for (const a of paper.aufgaben) {
+    const t = Math.round(a.text ?? -1);
+    a.text = t >= 0 && t < paper.texte.length ? t : -1;
+  }
   for (const a of paper.aufgaben) {
     a.punkte = Math.min(20, Math.max(1, Math.round(a.punkte || 1)));
   }

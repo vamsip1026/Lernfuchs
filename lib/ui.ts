@@ -90,8 +90,15 @@ export function ermutigung(note: number): string {
 }
 
 /** Anzeige von "Richtig"/"Falsch" in der Sprache des Fachs (Wert bleibt deutsch). */
+export function richtigFalschWert(wert: string): "richtig" | "falsch" | null {
+  const w = wert.trim().toLowerCase().replace(/[.!]+$/, "");
+  if (["richtig", "vrai", "true", "wahr"].includes(w)) return "richtig";
+  if (["falsch", "faux", "false"].includes(w)) return "falsch";
+  return null;
+}
+
 export function richtigFalschText(fach: string, wert: string): string {
-  const w = wert.trim().toLowerCase();
+  const w = richtigFalschWert(wert);
   const paar =
     fach === "Französisch"
       ? ["Vrai", "Faux"]

@@ -91,7 +91,13 @@ export const AUFGABENFORMATE = [
   { value: "rechnen", label: "Rechenaufgaben" },
   { value: "lueckentext", label: "Lückentext" },
   { value: "richtig_falsch", label: "Richtig / Falsch" },
+  { value: "leseverstehen", label: "Leseverstehen (Lesetext + Fragen)" },
+  { value: "hoerverstehen", label: "Hörverstehen (Hörtext + Fragen)" },
 ] as const;
+
+/** Formate mit Lese-/Hörtext gibt es nur in den Fremdsprachen. */
+export const TEXT_FORMATE = ["leseverstehen", "hoerverstehen"];
+export const TEXT_FAECHER = ["Französisch", "Englisch"];
 
 export const DEFAULT_AUFGABENFORMAT = "automatisch";
 

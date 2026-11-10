@@ -11,7 +11,8 @@ import { lehrwerkFuer } from "./curriculum";
 import { lueckenLoesungen, normalize } from "./luecken";
 import { notenschluesselText } from "./noten";
 import { richtigFalschText } from "./ui";
-import type { Aufgabe, TestPaper } from "./schema";
+import { Fragment } from "react";
+import { type Aufgabe, type TestPaper, textFuer } from "./schema";
 
 // Dieses Modul wird nur dynamisch (beim Klick) geladen, damit @react-pdf nicht
 // im SSR-/Initial-Bundle landet.
@@ -71,6 +72,12 @@ const styles = StyleSheet.create({
   solTitle: { fontSize: 13, fontWeight: "bold", marginBottom: 8 },
   solItem: { marginBottom: 6, fontSize: 10 },
   bold: { fontWeight: "bold" },
+  textBox: {
+    marginTop: 12,
+    padding: 8,
+    borderWidth: 1,
+    borderColor: "#bbbbbb",
+  },
   grau: { color: "#555555" },
 });
 
@@ -139,9 +146,28 @@ function TestDocument({
         <Text style={[styles.meta, { marginBottom: 10 }]}>
           Name: ______________ Datum: __________
         </Text>
-        {paper.aufgaben.map((a, i) => (
-          <QuestionView key={i} a={a} i={i} benotet={benotet} fach={paper.fach} />
-        ))}
+        {paper.aufgaben.map((a, i) => {
+          const t = textFuer(paper, a);
+          const neu =
+            t && (i === 0 || (paper.aufgaben[i - 1].text ?? -1) !== (a.text ?? -1));
+          return (
+            <Fragment key={i}>
+              {neu && t && (
+                <View style={styles.textBox}>
+                  <Text style={styles.bold}>
+                    {t.art === "hoeren" ? "Hörtext" : "Lesetext"}: {t.titel}
+                  </Text>
+                  <Text style={{ marginTop: 4 }}>
+                    {t.art === "hoeren"
+                      ? "Den Hörtext im interaktiven Modus anhören oder vorlesen lassen."
+                      : t.inhalt}
+                  </Text>
+                </View>
+              )}
+              <QuestionView a={a} i={i} benotet={benotet} fach={paper.fach} />
+            </Fragment>
+          );
+        })}
         {benotet && (
           <Text style={styles.note}>
             Notenschlüssel (Richtwert): {notenschluesselText(gesamt)}. Punkte des
@@ -153,6 +179,14 @@ function TestDocument({
       {mitLoesungen && (
         <Page size="A4" style={styles.page}>
           <Text style={styles.solTitle}>Lösungsschlüssel</Text>
+          {(paper.texte ?? [])
+            .filter((t) => t.art === "hoeren")
+            .map((t, k) => (
+              <View key={k} style={styles.solItem}>
+                <Text style={styles.bold}>Hörtext: {t.titel}</Text>
+                <Text>{t.inhalt}</Text>
+              </View>
+            ))}
           {paper.aufgaben.map((a, i) => (
             <View key={i} style={styles.solItem} wrap={false}>
               <Text>

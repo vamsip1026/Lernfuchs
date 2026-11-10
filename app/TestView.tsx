@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 import { lehrwerkFuer } from "@/lib/curriculum";
 import {
   frageTeile,
@@ -9,14 +9,43 @@ import {
   normalize,
 } from "@/lib/luecken";
 import { noteFuerProzent, notenschluesselText } from "@/lib/noten";
-import type { Aufgabe, TestPaper } from "@/lib/schema";
-import { ermutigung, fachStil, richtigFalschText } from "@/lib/ui";
+import { type Aufgabe, type LeseHoerText, type TestPaper, textFuer } from "@/lib/schema";
+import { Hoertext } from "./Hoertext";
+import {
+  ermutigung,
+  fachStil,
+  richtigFalschText,
+  richtigFalschWert,
+} from "@/lib/ui";
 import { apiFetch } from "@/lib/api";
 import { En } from "./En";
 
 type Mode = "interaktiv" | "drucken";
 
 const BUCHSTABEN = ["A", "B", "C", "D", "E", "F"];
+
+/** Text, der vor Aufgabe i erscheint (beim ersten Auftreten), sonst null. */
+function neuerText(paper: TestPaper, i: number): LeseHoerText | null {
+  const t = textFuer(paper, paper.aufgaben[i]);
+  if (!t) return null;
+  if (i > 0 && (paper.aufgaben[i - 1].text ?? -1) === (paper.aufgaben[i].text ?? -1)) {
+    return null;
+  }
+  return t;
+}
+
+function Lesetext({ t }: { t: LeseHoerText }) {
+  return (
+    <div className="rounded-2xl bg-amber-50 p-5 ring-1 ring-amber-200 dark:bg-amber-950/30 dark:ring-amber-900">
+      <p className="font-semibold text-slate-900 dark:text-slate-100">
+        📖 Lesetext <En>Reading text</En>: {t.titel}
+      </p>
+      <p className="mt-2 whitespace-pre-line leading-relaxed text-slate-800 dark:text-slate-200">
+        {t.inhalt}
+      </p>
+    </div>
+  );
+}
 
 /** Antwort: Text – bzw. bei Lückentexten ein Eintrag pro Lücke. */
 type Antwort = string | string[];
@@ -66,7 +95,11 @@ function gradeAnswer(
 
   const text = Array.isArray(antwort) ? antwort.join(" ") : (antwort ?? "");
   if (text.trim() === "") return { grade: "incorrect", punkte: 0 };
-  const treffer = normalize(text) === normalize(a.loesung);
+  const treffer =
+    a.typ === "richtig_falsch"
+      ? richtigFalschWert(text) !== null &&
+        richtigFalschWert(text) === richtigFalschWert(a.loesung)
+      : normalize(text) === normalize(a.loesung);
   if (a.typ === "multiple_choice" || a.typ === "richtig_falsch") {
     return treffer
       ? { grade: "correct", punkte: a.punkte }
@@ -511,9 +544,24 @@ function InteractiveView({
               ? "ring-amber-300 dark:ring-amber-800"
               : "ring-red-300 dark:ring-red-800"
           : "ring-slate-200 dark:ring-slate-800";
+        const text = neuerText(paper, i);
         return (
+          <Fragment key={i}>
+          {text && (
+            <li className="list-none">
+              {text.art === "hoeren" ? (
+                <Hoertext
+                  fach={paper.fach}
+                  titel={text.titel}
+                  inhalt={text.inhalt}
+                  zeigeText={abgegeben}
+                />
+              ) : (
+                <Lesetext t={text} />
+              )}
+            </li>
+          )}
           <li
-            key={i}
             className={`rounded-2xl bg-white p-5 shadow-sm ring-1 dark:bg-slate-900 ${ring}`}
           >
             <div className="flex items-start justify-between gap-3">
@@ -633,6 +681,7 @@ function InteractiveView({
               </div>
             )}
           </li>
+          </Fragment>
         );
       })}
     </ol>
@@ -817,8 +866,27 @@ function PrintView({
   return (
     <div>
       <ol className="space-y-6">
-        {paper.aufgaben.map((a, i) => (
-          <li key={i} className="avoid-break">
+        {paper.aufgaben.map((a, i) => {
+          const text = neuerText(paper, i);
+          return (
+          <Fragment key={i}>
+          {text && (
+            <li className="avoid-break list-none rounded-lg border border-slate-300 p-4 dark:border-slate-700">
+              <p className="font-semibold text-slate-900 dark:text-slate-100">
+                {text.art === "hoeren" ? "🎧 Hörtext" : "📖 Lesetext"}: {text.titel}
+              </p>
+              {text.art === "hoeren" ? (
+                <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+                  Den Hörtext im interaktiven Modus anhören oder vorlesen lassen.
+                </p>
+              ) : (
+                <p className="mt-2 whitespace-pre-line leading-relaxed text-slate-800 dark:text-slate-200">
+                  {text.inhalt}
+                </p>
+              )}
+            </li>
+          )}
+          <li className="avoid-break">
             <div className="flex items-start justify-between gap-3">
               <p className="whitespace-pre-line font-medium leading-loose text-slate-900 dark:text-slate-100">
                 <span className="mr-2 text-slate-400">{i + 1}.</span>
@@ -861,7 +929,9 @@ function PrintView({
               </div>
             )}
           </li>
-        ))}
+          </Fragment>
+          );
+        })}
       </ol>
 
       {/* Notenschlüssel-Hinweis (Richtwert) – nur bei benoteten Tests */}
@@ -882,6 +952,18 @@ function PrintView({
           <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">
             Lösungsschlüssel
           </h2>
+          {(paper.texte ?? [])
+            .filter((t) => t.art === "hoeren")
+            .map((t, k) => (
+              <div key={k} className="avoid-break mt-4 text-sm">
+                <p className="font-semibold text-slate-800 dark:text-slate-200">
+                  Hörtext: {t.titel}
+                </p>
+                <p className="mt-1 whitespace-pre-line text-slate-700 dark:text-slate-300">
+                  {t.inhalt}
+                </p>
+              </div>
+            ))}
           <ol className="mt-4 space-y-3">
             {paper.aufgaben.map((a, i) => (
               <li key={i} className="avoid-break text-sm">
