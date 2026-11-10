@@ -41,7 +41,11 @@ export const AufgabeSchema = z.object({
   erklaerung: z
     .string()
     .describe("Kurze Erklärung des Lösungswegs (1-3 Sätze)"),
-  punkte: z.number().int().min(1).max(10).describe("Punkte für diese Aufgabe"),
+  // Ohne min/max: ein Grenzwertverstoß würde sonst den ganzen Test verwerfen;
+  // die Punkte werden nach der Generierung serverseitig begrenzt.
+  punkte: z
+    .number()
+    .describe("Punkte für diese Aufgabe (ganzzahlig, meist 1–10, längere Schreibaufgaben bis 20)"),
 });
 
 export type Aufgabe = z.infer<typeof AufgabeSchema>;
@@ -124,7 +128,7 @@ export type GradeRequest = z.infer<typeof GradeRequestSchema>;
 /** Bewertung einer offenen Antwort. */
 export const GradeResultSchema = z.object({
   aufgabeIndex: z.number().int(),
-  punkte: z.number().int().describe("Erreichte Punktzahl als Prozent (0-100 in 10-%-Schritten)"),
+  punkte: z.number().describe("Erreichte Punktzahl als Prozent (0-100 in 10-%-Schritten)"),
   feedback: z
     .string()
     .describe(
