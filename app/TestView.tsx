@@ -10,7 +10,7 @@ import {
 } from "@/lib/luecken";
 import { noteFuerProzent, notenschluesselText } from "@/lib/noten";
 import type { Aufgabe, TestPaper } from "@/lib/schema";
-import { ermutigung, fachStil } from "@/lib/ui";
+import { ermutigung, fachStil, richtigFalschText } from "@/lib/ui";
 import { apiFetch } from "@/lib/api";
 import { En } from "./En";
 
@@ -558,6 +558,7 @@ function InteractiveView({
                   }
                   onChange={(v) => setAntwort(i, v)}
                   disabled={abgegeben}
+                  fach={paper.fach}
                 />
               </div>
             )}
@@ -604,7 +605,9 @@ function InteractiveView({
                               ? `${BUCHSTABEN[idx]}) ${a.loesung}`
                               : a.loesung;
                           })()
-                        : a.loesung}
+                        : a.typ === "richtig_falsch"
+                          ? richtigFalschText(paper.fach, a.loesung)
+                          : a.loesung}
                     </p>
                     <p className="mt-1 text-slate-500 dark:text-slate-400">
                       {a.erklaerung}
@@ -707,12 +710,14 @@ function AnswerInput({
   value,
   onChange,
   disabled,
+  fach,
 }: {
   aufgabe: Aufgabe;
   index: number;
   value: string | undefined;
   onChange: (v: string) => void;
   disabled: boolean;
+  fach: string;
 }) {
   if (aufgabe.typ === "multiple_choice" && aufgabe.optionen.length > 0) {
     return (
@@ -763,10 +768,7 @@ function AnswerInput({
                 : "text-slate-700 ring-slate-300 hover:bg-slate-100 dark:text-slate-200 dark:ring-slate-700 dark:hover:bg-slate-800")
             }
           >
-            {opt}{" "}
-            <En hell={value === opt}>
-              {opt === "Richtig" ? "True" : "False"}
-            </En>
+            {richtigFalschText(fach, opt)}
           </button>
         ))}
       </div>
@@ -841,7 +843,8 @@ function PrintView({
               </ul>
             ) : a.typ === "richtig_falsch" ? (
               <p className="mt-2 pl-6 text-slate-600 dark:text-slate-300">
-                ◯ Richtig ◯ Falsch
+                ◯ {richtigFalschText(paper.fach, "Richtig")} ◯{" "}
+                {richtigFalschText(paper.fach, "Falsch")}
               </p>
             ) : lueckenLoesungen(a) ? null : (
               // Platz zum handschriftlichen Lösen – offene Aufgaben bekommen
@@ -886,7 +889,11 @@ function PrintView({
                   <span className="mr-2 font-medium text-slate-500 dark:text-slate-400">
                     {i + 1}.
                   </span>
-                  <span className="font-semibold">{a.loesung}</span>
+                  <span className="font-semibold">
+                    {a.typ === "richtig_falsch"
+                      ? richtigFalschText(paper.fach, a.loesung)
+                      : a.loesung}
+                  </span>
                 </p>
                 <p className="pl-6 text-slate-500 dark:text-slate-400">
                   {a.erklaerung}

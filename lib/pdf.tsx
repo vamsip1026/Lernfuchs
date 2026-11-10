@@ -10,6 +10,7 @@ import {
 import { lehrwerkFuer } from "./curriculum";
 import { lueckenLoesungen, normalize } from "./luecken";
 import { notenschluesselText } from "./noten";
+import { richtigFalschText } from "./ui";
 import type { Aufgabe, TestPaper } from "./schema";
 
 // Dieses Modul wird nur dynamisch (beim Klick) geladen, damit @react-pdf nicht
@@ -77,10 +78,12 @@ function QuestionView({
   a,
   i,
   benotet,
+  fach,
 }: {
   a: Aufgabe;
   i: number;
   benotet: boolean;
+  fach: string;
 }) {
   return (
     <View style={styles.qItem} wrap={false}>
@@ -97,7 +100,9 @@ function QuestionView({
           </Text>
         ))
       ) : a.typ === "richtig_falsch" ? (
-        <Text style={styles.option}>O Richtig O Falsch</Text>
+        <Text style={styles.option}>
+          ◯ {richtigFalschText(fach, "Richtig")} ◯ {richtigFalschText(fach, "Falsch")}
+        </Text>
       ) : lueckenLoesungen(a) ? null : (
         Array.from({ length: a.typ === "offen" ? 8 : 2 }).map((_, k) => (
           <View key={k} style={styles.line} />
@@ -135,7 +140,7 @@ function TestDocument({
           Name: ______________ Datum: __________
         </Text>
         {paper.aufgaben.map((a, i) => (
-          <QuestionView key={i} a={a} i={i} benotet={benotet} />
+          <QuestionView key={i} a={a} i={i} benotet={benotet} fach={paper.fach} />
         ))}
         {benotet && (
           <Text style={styles.note}>
@@ -161,7 +166,9 @@ function TestDocument({
                           ? `${BUCH[idx]}) ${a.loesung}`
                           : a.loesung;
                       })()
-                    : a.loesung}
+                    : a.typ === "richtig_falsch"
+                      ? richtigFalschText(paper.fach, a.loesung)
+                      : a.loesung}
                 </Text>
               </Text>
               <Text style={styles.grau}>{a.erklaerung}</Text>

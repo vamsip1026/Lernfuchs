@@ -88,3 +88,17 @@ export function ermutigung(note: number): string {
   if (note === 4) return "Weiter üben – du schaffst das!";
   return "Dranbleiben, Übung hilft! 📚";
 }
+
+/** Anzeige von "Richtig"/"Falsch" in der Sprache des Fachs (Wert bleibt deutsch). */
+export function richtigFalschText(fach: string, wert: string): string {
+  const w = wert.trim().toLowerCase();
+  const paar =
+    fach === "Französisch"
+      ? ["Vrai", "Faux"]
+      : fach === "Englisch"
+        ? ["True", "False"]
+        : ["Richtig", "Falsch"];
+  if (w === "richtig") return paar[0];
+  if (w === "falsch") return paar[1];
+  return wert;
+}
